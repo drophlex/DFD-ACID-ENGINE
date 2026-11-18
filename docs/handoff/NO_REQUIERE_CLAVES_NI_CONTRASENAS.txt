@@ -1,0 +1,1 @@
+Nunca pegues contraseñas, claves API, tokens de GitHub/Vercel ni certificados privados en Claude. Usa inicio de sesión OAuth y los sistemas de secretos de la plataforma. No permitas flasheo del FM1 sin pruebas y copia de seguridad.

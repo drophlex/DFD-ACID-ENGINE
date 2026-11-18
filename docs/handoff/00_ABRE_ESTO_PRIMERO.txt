@@ -1,0 +1,11 @@
+DFD ACID ENGINE / PAQUETE MAESTRO PARA CLAUDE
+DARK FUNK DURCAL DESIGN · DESARROLLADO EN POLARIS SOUND LAB · MÉRIDA, YUCATÁN, MÉXICO
+
+1) Sube a Claude el archivo ZIP maestro, no el HTML aislado. Preferiblemente usa Claude Code en un entorno con Git, Node, CMake, compilador JUCE y acceso a GitHub/Vercel cuando lo autorices.
+2) Pega en Claude el contenido de COPIAR_Y_PEGAR_EN_CLAUDE.txt (incluido en la raíz).
+3) El código existente está en PROYECTO_ACTUAL/. Documentación detallada en DOCUMENTACION_PARA_CLAUDE/.
+4) La web está preparada para despliegue estático en SITIO_LISTO_PARA_DESPLEGAR/. Aún no está publicada: no existe un enlace público hasta desplegarla.
+5) Claude debe desarrollar, probar y mostrar resultados concretos, no limitarse a escribir un plan. Debe comunicar bloqueos y pedir acceso solo cuando sea necesario.
+6) El VST3 fuente NO equivale a un binario compilado. El núcleo FM1 C NO equivale a firmware instalable. SysEx de la TB-3 NO ha sido probado con hardware real.
+
+Estado previo: 7/7 pruebas Node correctas; sintaxis JS y compilación del C portátil correctas. La validación visual automatizada en el navegador local fue bloqueada por políticas del entorno, por lo que no se debe considerar superada.

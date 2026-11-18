@@ -1,0 +1,18 @@
+fase,tarea,plataforma,criterio_aceptacion,prioridad
+P0,Inventario y QA baseline,web/vst/fm1,"Reejecutar tests, detectar gaps, track issues",must
+P1,Deploy URL pública HTTPS,web,URL verificada muestra UI y permite exportar MIDI,must
+P1,E2E browser,web,"Play, generate, MIDI/WAV, consola sin errores",must
+P1,Responsive mobile,web,UX usable 360px y 1440px,must
+P2,Build JUCE VST3 Apple Silicon,vst3,Plugin escanea y suena en DAW,must
+P2,Build JUCE VST3 Windows x64,vst3,Plugin escanea y suena en DAW,must
+P2,Host transport/latency/loop,vst3,Sin glitches y reproduce secuencia en sync,must
+P2,FX DSP robustos,vst3,Sin NaNs/CPU spike,high
+P2,Sequencer sin límites artificiales,vst3,Patrones largos dinámicos + paginación,must
+P2,State/presets/automation,vst3,"Recall DAW, automation tests",must
+P3,TB3 SysEx patch librarian,tb3,Leer/validar/guardar/editar/restore patch activo,must
+P3,Mapas FX completos nombres,tb3,Parámetros descriptivos por tipo/rango,high
+P3,Shadow Capture / Midi monitor,tb3,Notas recibidas cuantizadas si están disponibles,must
+P3,TWIN performance sync,tb3,Audible virtual+físico con compensación,high
+P3,MIDI panic y reconnect,tb3,No notas sostenidas al desconectar,must
+P4,Port FM1 con SDK verificado,fm1,Compilar + device test antes de flashing,must
+P5,Docs/CI/releases,all,"README ES+EN, versions, installers, legal checks",must
