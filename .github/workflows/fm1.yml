@@ -1,0 +1,88 @@
+name: fm1
+on:
+  push:
+    branches: [main]
+    paths: ['fm1/**', 'web/pattern.js', '.github/workflows/fm1.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+env:
+  VERSION: 1.8.2-da1
+  IDENTITY: FM-1_954
+jobs:
+  firmware:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Tools (Pillow, fontTools; the JieLi toolchain)
+        run: |
+          pip install Pillow fonttools
+          sh fm1/firmware/firmware-src/tools/get_toolchain.sh "$HOME/.jieli"
+      - name: Three files of the JieLi AC79 SDK (Apache-2.0)
+        run: |
+          set -e
+          for url in https://github.com/Jieli-Tech/fw-AC79_AIoT_SDK.git https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK.git; do
+            rm -rf "$HOME/sdk"
+            if git clone --depth 1 --filter=blob:none --sparse --branch AC79NN_SDK_V1.2.1_2023-12-13 "$url" "$HOME/sdk"; then
+              git -C "$HOME/sdk" sparse-checkout set cpu/wl82/tools && break
+            fi
+          done
+          ls -la "$HOME/sdk/cpu/wl82/tools/uboot.boot" "$HOME/sdk/cpu/wl82/tools/cfg_tool.bin" "$HOME/sdk/cpu/wl82/tools/cfg/eq_cfg_hw.bin"
+      - name: The web version's patterns and sounds, the Spanish screen
+        run: |
+          node fm1/firmware/tools/gen_acid_tables.mjs
+          python3 fm1/firmware/tools/gen_lang.py
+          git diff --stat -- fm1/firmware/firmware-src/firmware/src
+      - name: Build
+        working-directory: fm1/firmware/firmware-src
+        run: |
+          export JIELI_TOOLCHAIN="$HOME/.jieli/toolchain" AC79_SDK="$HOME/sdk"
+          ./build.sh --release "$VERSION" --identity "$IDENTITY"
+      - name: Host tests (DFD ACID against the web version, the voice, UI, audio, sequencer, storage, the updater)
+        working-directory: fm1/firmware/firmware-src
+        run: |
+          export AC79_SDK="$HOME/sdk"
+          cp build/felucca-$VERSION.fwsc build/felucca.fwsc
+          sh tests/run_tests.sh
+      - name: The screens (splash, styles, DIRTY LAB, info, Spanish)
+        working-directory: fm1/firmware/firmware-src
+        run: |
+          HALI="-Ifirmware/hal -Ifirmware/bsp/chip -Ifirmware/bsp/boards/fm1 -Ifirmware/src"
+          cc -O1 -w "-DFELUCCA_VERSION=\"$VERSION\"" $HALI -Ibuild/gen -Itests -o build/acid_render tests/ui_render.c -lm
+          mkdir -p build/acid/ppm && ACID_SHOTS=1 build/acid_render build/acid
+          python3 -c "import glob; from PIL import Image; [Image.open(f).save(f[:-4] + '.png') for f in glob.glob('build/acid/ppm/*.ppm')]"
+      - name: Installer (beta)
+        run: |
+          mkdir -p fm1/install
+          cp fm1/firmware/firmware-src/build/felucca-$VERSION.fwsc DFD-ACID-ENGINE-FM1-$VERSION.fwsc
+          python3 fm1/firmware/tools/make_installer.py DFD-ACID-ENGINE-FM1-$VERSION.fwsc "$VERSION" "$IDENTITY" fm1/install/index.html
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DFD-ACID-ENGINE-FM1-${{ env.VERSION }}
+          path: |
+            DFD-ACID-ENGINE-FM1-${{ env.VERSION }}.fwsc
+            fm1/install/index.html
+            fm1/firmware/firmware-src/build/acid/ppm/*.png
+      - name: Keep the installer in the repository (the web link)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898+github-actions[bot]@users.noreply.github.com"
+          git add fm1/install/index.html
+          git commit -m "DFD ACID ENGINE FM-1 firmware installer $VERSION (beta, built by CI)" || exit 0
+          git pull --rebase && git push
+      - name: Beta release (not tested on hardware yet)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: fm1-v${{ env.VERSION }}-r${{ github.run_number }}
+          name: DFD ACID ENGINE ${{ env.VERSION }} for the M-VAVE FM-1 · BETA (not yet tested on hardware)
+          prerelease: true
+          files: DFD-ACID-ENGINE-FM1-${{ env.VERSION }}.fwsc
+          body: |
+            BETA · built and host-tested automatically; NOT yet tested on a real FM-1.
+            Install: open https://drophlex.github.io/DFD-ACID-ENGINE/fm1/install/ in Chrome or Edge with the FM-1 on USB and press Install
+            (it backs up first and can take you back to the official firmware).
+            DARK FUNK DURCAL DESIGN · DESARROLLADO EN POLARIS SOUND LAB · MÉRIDA, YUCATÁN, MÉXICO
