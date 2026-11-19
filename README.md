@@ -9,7 +9,7 @@ Acid house · acid techno · filter house · big beat · rave · braindance · e
 <a href="https://drophlex.github.io/DFD-ACID-ENGINE/web/"><img src="https://img.shields.io/badge/PLAY%20NOW-IN%20THE%20BROWSER-c1ff3a?style=for-the-badge&labelColor=111216" alt="Play now"></a>
 <a href="https://drophlex.github.io/DFD-ACID-ENGINE/DFD_ACID_ENGINE_OFFLINE.html"><img src="https://img.shields.io/badge/OFFLINE-1%20HTML%20FILE-a799ff?style=for-the-badge&labelColor=111216" alt="Offline"></a>
 <a href="https://github.com/drophlex/DFD-ACID-ENGINE/releases"><img src="https://img.shields.io/badge/VST3%20%C2%B7%20AU%20%C2%B7%20MAC%20%C2%B7%20WINDOWS-BETA-8cbcf5?style=for-the-badge&labelColor=111216" alt="Plugin beta"></a>
-<a href="https://drophlex.github.io/DFD-ACID-ENGINE/fm1/install/"><img src="https://img.shields.io/badge/M--VAVE%20FM--1-BETA%20(UNTESTED%20ON%20HARDWARE)-ff7147?style=for-the-badge&labelColor=111216" alt="FM-1 beta"></a>
+<a href="https://drophlex.github.io/DFD-ACID-ENGINE/fm1/install/"><img src="https://img.shields.io/badge/M--VAVE%20FM--1-TESTED%20ON%20HARDWARE-ff7147?style=for-the-badge&labelColor=111216" alt="FM-1: tested on hardware"></a>
 </p>
 <p align="center">
 <a href="https://drophlex.github.io/DFD-ACID-ENGINE/"><b>🌐 Website</b></a> ·
@@ -69,7 +69,7 @@ USB MIDI is not USB audio: record the TB-3's sound through your audio interface 
 
 Validated automatically with pluginval (strictness 8, Mac and Windows) and auval (Mac). Not yet tested by hand in every DAW.
 
-### 🎛 M-VAVE FM-1 · BETA (not yet tested on hardware)
+### 🎛 M-VAVE FM-1 · tested on a real FM-1
 
 Open the **[installer](https://drophlex.github.io/DFD-ACID-ENGINE/fm1/install/)** in Chrome or Edge with the FM-1 on USB → **Install** (back up your music first; the installer can always take you back to the official firmware).
 `PRESETS` style · `ALGORITHM` sound · `OCT+` generate · `OCT-` mutate · `FX` DIRTY page (FILTH · PUMP · ZAP · WIDTH). The FM-1 plays the web generator's own patterns, note for note.
@@ -145,7 +145,7 @@ Todo viene **en inglés** con un botón para pasarlo a **español**: la web (**E
 
 **Plug-in (BETA):** descárgalo de [Releases](https://github.com/drophlex/DFD-ACID-ENGINE/releases); Mac: clic derecho en *Install DFD ACID ENGINE.command* → Abrir; Windows: *Install.bat* → Sí. Validado con pluginval y auval, aún sin pruebas a mano en todos los DAW.
 
-**FM-1 (BETA, aún sin probar en hardware):** abre el [instalador](https://drophlex.github.io/DFD-ACID-ENGINE/fm1/install/) en Chrome o Edge → Instalar (respalda tu música primero; el instalador siempre puede regresarte al firmware oficial).
+**FM-1 (probado en un FM-1 real):** abre el [instalador](https://drophlex.github.io/DFD-ACID-ENGINE/fm1/install/) en Chrome o Edge → Instalar (respalda tu música primero; el instalador siempre puede regresarte al firmware oficial).
 
 **DIRTY LAB:** electro house sucio en un botón: muros de sierras distorsionadas, riffs en octavas, zaps, el bombeo; 6 familias de riffs, 9 sonidos sucios y 6 macros.
 

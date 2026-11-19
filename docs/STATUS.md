@@ -9,6 +9,6 @@ Updated 2026-11-18 (1.1).
 | Offline file | ✅ working | opened from disk in Chromium, plays |
 | TB-3 link | ⚠ code ready, **not tested on a real TB-3** | DEMO simulator test only. Messages follow the official TB-3 MIDI implementation. |
 | VST3 / AU / app | 🧪 beta | built by CI for Mac (universal) and Windows x64; pluginval strictness 8 passes on Mac, Windows and Linux; auval passes; the plug-in page tested with a stand-in JUCE backend (messages, restore, save, drag). **Not yet tested by hand in a DAW.** |
-| FM-1 firmware | 🧪 beta | host tests: the 1152 web patterns note for note, every control, power-on recovery, 40 screen states, the 19 sounds (no clipping, accent, zap, pump), Felucca's full suite; built by CI with the JieLi toolchain. **Not yet tested on a real FM-1**: not on The Firmware Hub until it is. |
+| FM-1 firmware | ✅ working | host tests: the 1152 web patterns note for note, every control, power-on recovery, 40 screen states, the 19 sounds (no clipping, accent, zap, pump), Felucca's full suite; built by CI with the JieLi toolchain. **Tested by the owner on a real FM-1 (2026-11-18): installs, runs, works.** |
 
-Pending: tests by the owner (plug-in in Ableton, FM-1 on hardware, a real TB-3); TB-3 named FX parameters per type.
+Pending: tests by the owner (plug-in in Ableton, a real TB-3); The Firmware Hub submission of the FM-1 firmware (identity to check); TB-3 named FX parameters per type.
