@@ -62,11 +62,11 @@ void DfdProcessor::processBlock(juce::AudioBuffer<float>& buf, juce::MidiBuffer&
   // the DAW's transport: when it plays, the engine follows its tempo and its bar
   bool hpl = false; double ppq = 0, bpm = 0;
   if (auto* ph = getPlayHead()) if (auto pos = ph->getPosition()) { hpl = pos->getIsPlaying(); if (auto b = pos->getBpm()) bpm = *b; if (auto q = pos->getPpqPosition()) ppq = *q; }
-  // like XO: the engine's own PLAY and STOP are independent of the DAW and it always runs at the DAW's tempo; the DAW's play
-  // starts it on its bar, the DAW's stop stops it only if the DAW started it
+  // like XO: the engine's own PLAY and STOP are independent of the DAW and it always runs at the DAW's tempo
   if (bpm > 1) E.setParam(P_BPM, (float)bpm);
-  if (hpl) E.hostPosition(ppq, true);
-  else if (hostWasPlaying) { if (ownPlay) E.hostSync = false; else E.hostPosition(0, false); }
+  // the DAW's play and stop never start or stop the engine (only its own PLAY / STOP do); while both play it follows the DAW's bar
+  if (hpl && E.playing) E.hostPosition(ppq, true);
+  else if (hostWasPlaying) E.hostSync = false;
   hostWasPlaying = hpl;
   // MIDI in from the DAW plays the voice (a keyboard, a clip)
   juce::MidiBuffer outMidi;
