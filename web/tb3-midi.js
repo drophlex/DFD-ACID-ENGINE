@@ -47,5 +47,21 @@ export class TB3Link{
  }
  startCapture(){this.notes=[];this.startMS=performance.now();this.capture=true;this.log('Grabando notas MIDI entrantes de '+(this.input?.name||'la TB-3')+'…');}
  stopCapture({bpm=132,length=16}={}){this.capture=false;const stepMS=60000/bpm/4;const steps=Array.from({length},()=>({note:36,active:false,accent:false,slide:false,ratchet:1,prob:1,cutoff:null}));for(const n of this.notes){const i=Math.round(n.at/stepMS)%length;if(i<0)continue;steps[i]={...steps[i],active:true,note:n.note,accent:n.velocity>110};}this.log(this.notes.length+' notas capturadas; cuantizadas a 1/16.');return steps;}
+ // DEMO: a simulated TB-3 that answers like the real one (identity, RQ1 -> DT1, DT1 writes), so everything can be tried without hardware
+ useDemo(){const demo=new DemoTB3(d=>this.receive({data:d,timeStamp:performance.now()}),this.log);this.demo=demo;this.output={name:'DEMO TB-3 (simulated)',send:(d,at)=>demo.send(d,at)};this.input={name:'DEMO TB-3 (simulated)'};this.sysex=true;this.log('DEMO TB-3 connected: nothing leaves this browser.');return {output:this.output.name,input:this.input.name,sysex:true};}
+ disconnect(){if(this.input&&this.input.onmidimessage!==undefined)this.input.onmidimessage=null;this.output=null;this.input=null;this.demo=null;this.log('MIDI disconnected.');}
  snapshotJSON(){return JSON.stringify({type:'DFD-TB3-RAW',version:1,source:'TB-3 MIDI v1.10',blocks:Object.fromEntries(Object.entries(this.rawBlocks).map(([k,v])=>[k,[...v]]))},null,2);}
+}
+
+// the simulated TB-3: plausible factory-like values in the four documented blocks
+export class DemoTB3{
+ constructor(reply,log=()=>{}){this.reply=reply;this.log=log;this.mem={patch:[1,100,0,0,0,0,0,0,0,0,68,...new Array(21).fill(0),100],distortion:[1,3,40,50,50,90,100],efx1:[0,0,...new Array(24).fill(0)],efx2:[8,0,...new Array(20).fill(0)]};}
+ send(d){d=[...d];const at=()=>new Promise(r=>setTimeout(r,25));
+  if(d[0]===0xf0&&d[1]===0x7e&&d[4]===1){at().then(()=>this.reply([0xf0,0x7e,0x10,6,2,0x41,0x7b,0x02,0,0,0,0,0,0,0xf7]));return;}
+  if(d[0]===0xf0&&d[1]===0x41&&d[5]===0x7b){const addr=d.slice(7,11),key=Object.keys(TB3_BLOCKS).find(k=>TB3_BLOCKS[k].address.slice(0,3).every((a,i)=>a===addr[i]));if(!key)return;
+   if(d[6]===0x11){at().then(()=>this.reply([...sysexDT1(TB3_BLOCKS[key].address,this.mem[key])]));}
+   if(d[6]===0x12){const data=d.slice(11,-2),off=addr[3];data.forEach((v,i)=>{if(off+i<this.mem[key].length)this.mem[key][off+i]=v;});this.log('DEMO TB-3 stored '+data.length+' byte(s) in '+key+' @'+off);}
+   return;}
+  const st=d[0]&0xf0;if(st===0x90&&d[2]>0)this.last=d[1];
+ }
 }

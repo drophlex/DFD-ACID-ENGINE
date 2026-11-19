@@ -1,84 +1,166 @@
-// DFD ACID ENGINE - original sequencer and export utilities; no third-party dependencies.
+// DFD ACID ENGINE · original pattern generator, mutation and project helpers. No third-party code.
+export const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+// styles: each one is a genre's technique (rhythm grid, note palette, accent / slide habits), never a copied riff.
+// rhythm: chance of a note on each 16th; pal: semitones from the root -> weight; acc: accent chance per 16th
+const R = str => str.split(' ').map(Number);
 export const MODES = {
-  acid:{name:'ACID / 303',rests:.13,accents:.27,slides:.3,ratchets:.02,jump:.26},
-  broken:{name:'BROKEN / IDM',rests:.27,accents:.34,slides:.24,ratchets:.34,jump:.73},
-  rave:{name:'RAVE / ATTACK',rests:.09,accents:.48,slides:.19,ratchets:.11,jump:.48},
-  mutant:{name:'MUTANT / GLITCH',rests:.31,accents:.48,slides:.43,ratchets:.44,jump:.92}
+  acid:       {name: 'ACID HOUSE / CLASSIC',  rhythm: R('.95 .45 .8 .5 .9 .4 .75 .55 .95 .45 .8 .5 .9 .4 .75 .6'), pal: {0: 6, 12: 3.5, 3: 1.4, 7: 1.4, 10: 1.1, 5: .6, '-12': .8, 1: .3},
+                acc: R('.6 .1 .3 .2 .5 .1 .35 .2 .6 .1 .3 .2 .5 .1 .4 .3'), slide: .22, tie: .06, gate: [45, 70], ratchet: .02, motif: 8, range: [9, 14]},
+  techno:     {name: 'ACID TECHNO / 3-3-2',    rhythm: R('.98 .85 .85 .98 .85 .85 .98 .85 .98 .85 .85 .98 .85 .85 .98 .85'), pal: {0: 8, 12: 3, 7: 1, 3: .9, 1: .5, 10: .5},
+                acc: R('.9 0 0 .85 0 0 .8 0 .9 0 0 .85 0 0 .7 .1'), slide: .12, tie: .02, gate: [35, 55], ratchet: .03, motif: 4, range: [12, 16]},
+  filter:     {name: 'FILTER HOUSE / FRENCH',  rhythm: R('.95 .1 .7 .35 .2 .5 .85 .2 .9 .1 .7 .35 .3 .55 .8 .4'), pal: {0: 5, 12: 4, 7: 1.6, 10: 1.6, 5: 1, 3: 1.1},
+                acc: R('.5 0 .5 .2 0 .3 .6 0 .5 0 .5 .2 0 .3 .5 .2'), slide: .12, tie: .14, gate: [65, 95], ratchet: 0, motif: 8, range: [7, 11]},
+  bigbeat:    {name: 'BIG BEAT / BREAKS',      rhythm: R('.98 .15 .3 .9 .1 .3 .85 .2 .4 .6 .2 .8 .15 .5 .7 .35'), pal: {0: 5, 3: 2, 5: 1.8, 6: .8, 7: 2, 10: 1.6, 12: 2.2},
+                acc: R('.8 0 .1 .7 0 .1 .7 0 .2 .4 0 .6 0 .3 .5 .1'), slide: .18, tie: .1, gate: [50, 80], ratchet: .03, motif: 16, range: [7, 11]},
+  rave:       {name: 'RAVE / HARDCORE',        rhythm: R('.95 .3 .6 .7 .5 .7 .6 .4 .9 .3 .7 .6 .5 .7 .65 .5'), pal: {0: 4, 3: 2, 7: 2.2, 10: 1.8, 12: 3, 15: 1, 5: .8},
+                acc: R('.7 .1 .3 .5 .2 .5 .3 .1 .7 .1 .4 .4 .2 .5 .4 .3'), slide: .25, tie: .04, gate: [40, 65], ratchet: .06, motif: 8, range: [9, 13]},
+  braindance: {name: 'BRAINDANCE / DRILL',     rhythm: R('.95 .4 .55 .5 .6 .35 .7 .5 .8 .45 .5 .55 .6 .4 .65 .6'), pal: {0: 3.5, 12: 2.2, 3: 1.2, 7: 1.2, 10: 1, 14: .8, '-12': 1, 1: .9, 6: .6, 8: .7},
+                acc: R('.6 .2 .3 .4 .3 .2 .5 .3 .5 .3 .3 .4 .3 .3 .5 .4'), slide: .3, tie: .08, gate: [20, 80], ratchet: .28, motif: 16, range: [8, 14], probability: .5},
+  electro:    {name: 'ELECTRO / PUNK',         rhythm: R('.98 .2 .9 .2 .95 .2 .9 .3 .98 .2 .9 .2 .95 .25 .9 .4'), pal: {0: 7, 12: 4, 7: 1.1, '-12': 1, 3: .7},
+                acc: R('.7 0 .2 0 .6 0 .3 0 .7 0 .2 0 .6 0 .4 .2'), slide: .08, tie: .03, gate: [25, 45], ratchet: .05, motif: 4, range: [8, 12]},
+  hypnotic:   {name: 'DEEP / HYPNOTIC',        rhythm: R('.95 .15 .35 .6 .2 .3 .55 .15 .7 .2 .4 .5 .2 .35 .5 .3'), pal: {0: 6, 12: 2, 3: 1.2, 10: 1.1, 7: 1.1, 5: .5},
+                acc: R('.4 0 .2 .3 0 .1 .3 0 .4 0 .2 .3 0 .1 .3 .1'), slide: .28, tie: .2, gate: [60, 100], ratchet: 0, motif: 4, range: [5, 9]},
 };
-export const SCALES={minor:[0,2,3,5,7,8,10],phrygian:[0,1,3,5,7,8,10],dorian:[0,2,3,5,7,9,10],chromatic:[0,1,2,3,4,5,6,7,8,9,10,11],pentatonic:[0,3,5,7,10]};
-export const PRESETS=[
- {name:'DFD / NIGHT SIGNAL',mode:'acid',root:36,scale:'minor',bpm:132,cutoff:430,resonance:.79,drive:.43,delay:.27},
- {name:'POLARIS / GLASS TEETH',mode:'broken',root:38,scale:'phrygian',bpm:158,cutoff:890,resonance:.88,drive:.51,delay:.16},
- {name:'DFD / REACTION 04',mode:'rave',root:41,scale:'dorian',bpm:146,cutoff:720,resonance:.68,drive:.73,delay:.33},
- {name:'DARK FUNK / VIRUS',mode:'mutant',root:33,scale:'chromatic',bpm:172,cutoff:520,resonance:.91,drive:.82,delay:.24},
- {name:'MERIDA / SUBSYSTEM',mode:'acid',root:29,scale:'minor',bpm:124,cutoff:320,resonance:.73,drive:.39,delay:.17},
- {name:'POLARIS / STRANGE LOOP',mode:'broken',root:36,scale:'dorian',bpm:184,cutoff:1100,resonance:.84,drive:.64,delay:.41}
+const ALIAS = {broken: 'braindance', mutant: 'braindance', funk: 'filter', minimal: 'hypnotic'};
+export const styleOf = m => MODES[m] || MODES[ALIAS[m]] || MODES.acid;
+export const SCALES = {
+  minor: [0, 2, 3, 5, 7, 8, 10], phrygian: [0, 1, 3, 5, 7, 8, 10], dorian: [0, 2, 3, 5, 7, 9, 10], harmonic: [0, 2, 3, 5, 7, 8, 11],
+  blues: [0, 3, 5, 6, 7, 10], pentatonic: [0, 3, 5, 7, 10], locrian: [0, 1, 3, 5, 6, 8, 10], chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+};
+// trig conditions, the same codes as the engine (engine/dfd_acid.h, enum Cond)
+export const COND = {ALWAYS: 0, FILL: 1, NOFILL: 2, FIRST: 3, NOFIRST: 4, ab: (a, b) => 16 + (a - 1) * 8 + (b - 1)};
+export function condName(c) {
+  if (!c) return '—';
+  if (c === 1) return 'FILL'; if (c === 2) return '!FILL'; if (c === 3) return '1ST'; if (c === 4) return '!1ST';
+  if (c >= 16) { const a = ((c - 16) >> 3) + 1, b = ((c - 16) & 7) + 1; return a + ':' + b; }
+  return '?';
+}
+export const COND_LIST = [0, 1, 2, 3, 4, COND.ab(1, 2), COND.ab(2, 2), COND.ab(1, 3), COND.ab(2, 3), COND.ab(3, 3), COND.ab(1, 4), COND.ab(2, 4), COND.ab(3, 4), COND.ab(4, 4), COND.ab(1, 8), COND.ab(8, 8)];
+
+// original DFD / POLARIS factory patterns: a style, a key, a seed and a sound
+export const PRESETS = [
+  {name: 'DFD / NIGHT SIGNAL',      mode: 'acid',     root: 36, scale: 'minor',     bpm: 132, seed: 617,   snd: {cutoff: 430, res: .79, envmod: .62, decay: .42, drive: .43, dly_mix: .2}},
+  {name: 'POLARIS / GLASS TEETH',   mode: 'rave', root: 38, scale: 'phrygian',  bpm: 158, seed: 16044, snd: {cutoff: 890, res: .88, envmod: .5, decay: .25, drive: .51, crush_on: 1, crush_mix: .3}},
+  {name: 'DFD / REACTION 04',       mode: 'bigbeat',  root: 41, scale: 'dorian',    bpm: 146, seed: 31471, snd: {cutoff: 720, res: .68, envmod: .75, decay: .5, drive: .73, drive2: .35}},
+  {name: 'DARK FUNK / VIRUS',       mode: 'braindance', root: 33, scale: 'chromatic', bpm: 172, seed: 46898, snd: {cutoff: 520, res: .91, envmod: .7, decay: .3, drive: .82, ring_on: 1, ring_mix: .25}},
+  {name: 'MÉRIDA / SUBSYSTEM',      mode: 'hypnotic', root: 29, scale: 'minor',     bpm: 124, seed: 62325, snd: {cutoff: 320, res: .73, envmod: .45, decay: .8, sub: .45, rev_on: 1, rev_mix: .22}},
+  {name: 'POLARIS / STRANGE LOOP',  mode: 'techno',   root: 36, scale: 'dorian',    bpm: 138, seed: 77752, snd: {cutoff: 610, res: .84, envmod: .55, decay: .6, mod_on: 1, mod_type: 2, mod_mix: .4}},
+  {name: 'DFD / HUESO NEGRO',       mode: 'filter',   root: 31, scale: 'blues',     bpm: 112, seed: 9031,  snd: {cutoff: 380, res: .66, envmod: .7, decay: .35, wave: 1, pw: .35, drive: .3}},
+  {name: 'POLARIS / CENOTE',        mode: 'hypnotic', root: 34, scale: 'harmonic',  bpm: 120, seed: 4402,  snd: {cutoff: 280, res: .8, envmod: .4, decay: 1.2, rev_on: 1, rev_mix: .3, rev_size: .85, dly_mix: .3}},
+  {name: 'DFD / MÁQUINA 808',       mode: 'electro',  root: 36, scale: 'phrygian',  bpm: 128, seed: 2718,  snd: {cutoff: 650, res: .6, envmod: .5, decay: .22, wave: 1, pw: .5, dyn_on: 1, dyn_rate: 8}},
+  {name: 'DARK FUNK / ÁCIDO RITUAL', mode: 'acid',    root: 38, scale: 'locrian',   bpm: 140, seed: 1999,  snd: {cutoff: 470, res: .9, envmod: .8, decay: .4, drive: .6, stut_on: 0}},
 ];
-export function rng(seed=Date.now()){let s=seed>>>0;return ()=>{s=(Math.imul(1664525,s)+1013904223)>>>0;return s/4294967296;};}
-export const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-export function generate({mode='acid',root=36,scale='minor',length=16,density=.75,chaos=.45,seed=Date.now()}={}){
- const p=MODES[mode]||MODES.acid, notes=SCALES[scale]||SCALES.minor, r=rng(seed); const out=[];let degree=0;
- for(let i=0;i<length;i++){
-  const active=r()<clamp((1-p.rests)*density+.13,0,1);
-  if(r()<.2+chaos*.46) degree+=(r()-.5)*((p.jump*8+2)*chaos+1)|0;
-  else degree+=r()<.46?-1:r()<.72?1:0;
-  degree=clamp(degree,-9,15);
-  const octave=Math.floor(degree/notes.length), index=((degree%notes.length)+notes.length)%notes.length;
-  let note=clamp(root+12*octave+notes[index],24,96);
-  if(r()<chaos*.13) note=clamp(note+(r()<.5?-12:12),24,96);
-  out.push({note,active,accent:active&&r()<p.accents,slide:active&&i>0&&r()<p.slides,ratchet:active&&r()<p.ratchets*chaos?2+Math.floor(r()*3):1,prob:1,cutoff:null});
- }
- if(!out.some(s=>s.active))out[0].active=true;
- return out;
-}
-export function mutate(steps,amount=.38,config={}){
- const r=rng(Math.floor(Math.random()*0xffffffff)),sc=SCALES[config.scale||'minor']||SCALES.minor;
- return steps.map((s,i)=>{
-  const n={...s};if(r()<amount*.58)n.note=clamp(n.note+sc[Math.floor(r()*sc.length)]-sc[Math.floor(r()*sc.length)],24,96);
-  if(r()<amount*.32)n.active=!n.active;
-  if(r()<amount*.58)n.accent=!n.accent;
-  if(r()<amount*.43)n.slide=!n.slide;
-  if(r()<amount*.22)n.ratchet=n.ratchet===1?2+Math.floor(r()*3):1;
-  if(i===0)n.slide=false;
-  return n;
- });
-}
-export function encodeVLQ(v){v=Math.max(0,Math.floor(v));let b=[v&127];while((v>>=7))b.unshift((v&127)|128);return b;}
-function chunk(id,bytes){return [...new TextEncoder().encode(id),...(new Array(4).fill(0).map((_,i)=>(bytes.length >>> (24-i*8))&255)),...bytes];}
-export function midiBytes(steps,{bpm=132,channel=1,repeats=4,swing=0}={}){
- // Type 0, one track, ticks per quarter = 480, includes TB-3 CC 102 slide & 103 accent.
- const division=480,tps=120,events=[],ch=clamp(channel|0,1,16)-1,base=[0x90|ch,0x80|ch],c=[0xb0|ch];
- const push=(tick,prio,...bytes)=>events.push({tick:Math.round(tick),prio,bytes});
- const mpqn=Math.round(60000000/clamp(bpm,30,300));
- push(0,0,0xff,0x51,3,(mpqn>>16)&255,(mpqn>>8)&255,mpqn&255);
- for(let turn=0;turn<repeats;turn++)for(let i=0;i<steps.length;i++){
-  const s=steps[i];if(!s.active)continue;const start=(turn*steps.length+i)*tps+(i%2?Math.round(tps*swing*.45):0);
-  const sub=Math.max(1,s.ratchet|0),part=tps/sub;
-  push(start,1,...c,102,s.slide?127:0);push(start,1,...c,103,s.accent?127:0);
-  for(let k=0;k<sub;k++){
-    const onset=start+k*part, dur=part*(s.slide&&k===sub-1?1.01:.84);
-    push(onset,2,...base.slice(0,1),clamp(s.note|0,0,127),s.accent?122:91);
-    push(onset+dur,0,...base.slice(1),clamp(s.note|0,0,127),0);
+
+export function rng(seed = Date.now()) { let s = (seed >>> 0) || 1; return () => { s = (Math.imul(1664525, s) + 1013904223) >>> 0; return s / 4294967296; }; }
+export const blankStep = (note = 36) => ({note, active: false, accent: false, slide: false, tie: false, gate: 55, vel: 100, ratchet: 1, prob: 100, cond: 0, micro: 0});
+
+function pick(r, pal) { const e = Object.entries(pal); let t = 0; for (const [, w] of e) t += w; let x = r() * t; for (const [k, w] of e) { if ((x -= w) <= 0) return +k; } return +e[0][0]; }
+function snap(semi, scale) { if (scale.length >= 12) return semi; const o = Math.floor(semi / 12), pc = ((semi % 12) + 12) % 12; let best = scale[0], d = 99; for (const n of scale) { const dd = Math.abs(n - pc); if (dd < d) { d = dd; best = n; } } return o * 12 + best; }
+
+// one candidate: a motif, repeated across the pattern with small variations and a turnaround at the end of each bar
+function candidate(st, o, r) {
+  const scale = SCALES[o.scale] || SCALES.minor, M = Math.min(st.motif, o.length), chaos = o.chaos, dens = o.density / .75;
+  const pal = {...st.pal}; if (chaos > .5) { pal[14] = (pal[14] || 0) + chaos; pal[-12] = (pal[-12] || 0) + chaos * .6; }
+  const motif = [];
+  for (let i = 0; i < M; i++) {
+    const s = blankStep(), k = i % 16;
+    s.active = k === 0 || r() < Math.min(1, st.rhythm[k] * dens);
+    const semi = k === 0 ? 0 : snap(pick(r, pal), scale);
+    s.note = clamp(o.root + semi + o.transpose, 24, 96);
+    s.accent = s.active && r() < st.acc[k];
+    s.gate = Math.round(st.gate[0] + r() * (st.gate[1] - st.gate[0]) * (.5 + o.gates));
+    s.vel = s.accent ? 127 : 96 + Math.round(r() * 14);
+    motif.push(s);
   }
- }
- events.sort((a,b)=>a.tick-b.tick||a.prio-b.prio);let prev=0,body=[];
- for(const ev of events){body.push(...encodeVLQ(Math.max(0,ev.tick-prev)),...ev.bytes);prev=ev.tick;}
- body.push(0,0xff,0x2f,0);
- return new Uint8Array([...chunk('MThd',[0,0,0,1,(division>>8)&255,division&255]),...chunk('MTrk',body)]);
+  const out = [];
+  for (let i = 0; i < o.length; i++) {
+    const s = structuredClone(motif[i % M]), k = i % 16, bar = Math.floor(i / 16), turn = k >= 12 && (bar % 2 === 1 || o.length <= 16);
+    // variation: later repeats change a note now and then (more with chaos), the bar's last beat gets a turnaround
+    if (i >= M && r() < chaos * .25 + (turn ? .35 : 0)) {
+      if (r() < .6) s.note = clamp(o.root + snap(pick(r, pal), scale) + o.transpose, 24, 96);
+      else s.active = !s.active || k === 0;
+    }
+    out.push(s);
+  }
+  out.forEach((s, i) => {
+    if (!s.active) return;
+    const prev = out[(i - 1 + out.length) % out.length];
+    if (i > 0 && prev.active && prev.note !== s.note && r() < st.slide) s.slide = true;          // slides only between different notes
+    else if (i > 0 && prev.active && r() < st.tie) { s.tie = true; s.note = prev.note; }
+    if (r() < st.ratchet * (.3 + chaos)) s.ratchet = [2, 2, 3, 4][Math.floor(r() * 4)];
+    const pp = Math.max(o.probability, st.probability ? st.probability * chaos : 0);
+    if (pp > 0 && i % 4 !== 0 && r() < pp * .4) s.prob = [50, 75, 75][Math.floor(r() * 3)];
+    if (o.conditions > 0 && i % 4 === 3 && r() < o.conditions * .5) s.cond = [COND.FILL, COND.ab(2, 2), COND.ab(1, 2), COND.ab(4, 4)][Math.floor(r() * 4)];
+    if (s.slide) s.gate = Math.max(s.gate, 60);
+  });
+  out[0].active = true; out[0].slide = false; out[0].tie = false;
+  return out;
 }
-export function parseNoteName(note){const n=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];return n[(note+120)%12]+(Math.floor(note/12)-1);}
-export function downloadBytes(bytes,name,mime){const url=URL.createObjectURL(new Blob([bytes],{type:mime}));const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
-export function audioBufferToWAV(buffer,bitDepth=24){
- if(![16,24].includes(bitDepth))throw Error('Use 16 or 24-bit PCM');
- const channels=Math.min(2,buffer.numberOfChannels),samples=buffer.length,bps=bitDepth/8;
- const bytes=new ArrayBuffer(44+samples*channels*bps),v=new DataView(bytes);let o=0;
- const str=s=>{for(let i=0;i<s.length;i++)v.setUint8(o++,s.charCodeAt(i));},u16=x=>{v.setUint16(o,x,true);o+=2;},u32=x=>{v.setUint32(o,x,true);o+=4;};
- str('RIFF');u32(bytes.byteLength-8);str('WAVEfmt ');u32(16);u16(1);u16(channels);u32(buffer.sampleRate);u32(buffer.sampleRate*channels*bps);u16(channels*bps);u16(bitDepth);str('data');u32(samples*channels*bps);
- const planes=Array.from({length:channels},(_,i)=>buffer.getChannelData(i));
- for(let i=0;i<samples;i++)for(let ch=0;ch<channels;ch++){
-   const x=clamp(planes[ch][i],-1,1);
-   if(bitDepth===16){v.setInt16(o,x<0?Math.round(x*32768):Math.round(x*32767),true);o+=2;}
-   else{const n=x<0?Math.round(x*8388608):Math.round(x*8388607);v.setUint8(o++,n&255);v.setUint8(o++,(n>>8)&255);v.setUint8(o++,(n>>16)&255);}
- }
- return new Uint8Array(bytes);
+// how usable a line is: anchored on the root, singable leaps, a groove that repeats, a sane amount of accents and slides
+export function score(steps, st, root) {
+  let sc = 0; const n16 = steps.length / 16, act = steps.filter(s => s.active);
+  if (steps[0].active && (steps[0].note - root) % 12 === 0) sc += 3;
+  const per = act.length / n16; sc -= per < st.range[0] ? (st.range[0] - per) * 1.5 : per > st.range[1] ? (per - st.range[1]) * 1.5 : -2;
+  const rootish = act.filter(s => ((s.note - root) % 12 + 12) % 12 === 0).length / Math.max(1, act.length); sc += rootish >= .3 && rootish <= .7 ? 2 : -Math.abs(rootish - .5) * 4;
+  let prev = null; for (const s of act) { if (prev !== null) { const d = Math.abs(s.note - prev); if (d > 12 && d !== 24) sc -= 1.2; else if (d > 7 && d !== 12) sc -= .3; } prev = s.note; }
+  const acc = act.filter(s => s.accent).length / n16; sc += acc >= 2 && acc <= 6 ? 1 : -1;
+  const sl = act.filter(s => s.slide).length / n16; sc += st.slide > .1 ? (sl >= 1 && sl <= 4 ? 1 : -.8) : 0;
+  const distinct = new Set(act.map(s => s.note)).size; sc += distinct >= 2 && distinct <= 6 ? 1 : -1;
+  if (steps.length >= 16) { let same = 0; for (let i = 0; i < 8; i++) same += steps[i].active === steps[i + 8].active && (!steps[i].active || steps[i].note === steps[i + 8].note) ? 1 : 0; sc += same >= 4 ? 1.5 : 0; }
+  return sc;
 }
+
+// the generator: tries several candidates from the seed and keeps the most usable one (deterministic per seed).
+// lock = {notes, rhythm, accents, slides} keeps those genes from `keep` (DNA lock)
+export function generate({mode = 'acid', root = 36, scale = 'minor', length = 16, density = .75, chaos = .45, seed = Date.now(),
+  probability = 0, conditions = 0, gates = .3, poly = 0, transpose = 0, keep = null, lock = {}} = {}) {
+  const st = styleOf(mode), r = rng(seed), o = {root, scale, length, density, chaos, probability, conditions, gates, transpose};
+  let best = null, bs = -1e9;
+  for (let c = 0; c < 16; c++) { const cand = candidate(st, o, rng(Math.floor(r() * 4294967295))), v = score(cand, st, root + transpose); if (v > bs) { bs = v; best = cand; } }
+  // polyrhythm: an accent cycle of 3, 5 or 7 across the bar
+  if (poly) { const cy = [0, 3, 5, 7][poly] || 3; best.forEach((s, i) => { if (s.active) { s.accent = i % cy === 0; s.vel = s.accent ? 127 : Math.min(s.vel, 110); } }); }
+  return keep ? applyLock(best, keep, lock) : best;
+}
+
+export function applyLock(fresh, old, lock) {
+  return fresh.map((s, i) => {
+    const o = old[i % old.length]; if (!o) return s;
+    const n = {...s};
+    if (lock.notes) n.note = o.note;
+    if (lock.rhythm) { n.active = o.active; n.gate = o.gate; n.ratchet = o.ratchet; n.tie = o.tie; }
+    if (lock.accents) n.accent = o.accent;
+    if (lock.slides) n.slide = o.slide;
+    return n;
+  });
+}
+
+export function mutate(steps, amount = .38, config = {}, lock = {}) {
+  const r = rng(Math.floor(Math.random() * 0xffffffff)), sc = SCALES[config.scale || 'minor'] || SCALES.minor;
+  return steps.map((s, i) => {
+    const n = {...s};
+    // new notes come from the style's palette around the root, so a mutation stays in the genre
+    if (!lock.notes && i % 16 !== 0 && r() < amount * .5) n.note = clamp((config.root ?? 36) + (config.transpose || 0) + snap(pick(r, styleOf(config.mode).pal), sc), 24, 96);
+    if (!lock.rhythm && i % 16 !== 0 && r() < amount * .3) n.active = !n.active;
+    if (!lock.accents && r() < amount * .58) n.accent = !n.accent;
+    if (!lock.slides && r() < amount * .3) n.slide = !n.slide && i > 0 && steps[i - 1].active && steps[i - 1].note !== n.note;
+    if (!lock.rhythm && r() < amount * .22) n.ratchet = n.ratchet === 1 ? 2 + Math.floor(r() * 3) : 1;
+    if (r() < amount * .2) n.gate = clamp(n.gate + Math.round((r() - .5) * 40), 10, 100);
+    if (i === 0) { n.slide = false; n.tie = false; }
+    return n;
+  });
+}
+
+export function sanitize(st, legacy = false) {
+  const s = blankStep();
+  s.note = clamp(Number(st.note) || 36, 0, 127); s.active = !!st.active; s.accent = !!st.accent; s.slide = !!st.slide; s.tie = !!st.tie;
+  s.gate = clamp(Number(st.gate ?? 55), 5, 100); s.vel = clamp(Number(st.vel ?? 100), 1, 127); s.ratchet = clamp(Number(st.ratchet) || 1, 1, 8);
+  s.prob = clamp(Number(st.prob ?? 100), 0, 100); s.cond = COND_LIST.includes(Number(st.cond)) || Number(st.cond) >= 16 ? Number(st.cond) | 0 : 0; s.micro = clamp(Number(st.micro) || 0, -50, 50);
+  // version-1 projects (and the capture) stored probability as 0..1
+  if (legacy) s.prob = st.prob === undefined ? 100 : clamp(Math.round(Number(st.prob) * 100), 0, 100);
+  return s;
+}
+
+export function parseNoteName(note) { const n = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']; return n[(note + 120) % 12] + (Math.floor(note / 12) - 1); }
+export function downloadBytes(bytes, name, mime) { const url = URL.createObjectURL(new Blob([bytes], {type: mime})); const a = document.createElement('a'); a.href = url; a.download = name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000); }
+export function dnaHash(steps) { let h = 0x811c9dc5; for (const s of steps) { h ^= s.note + (s.active ? 211 : 0) + (s.accent ? 37 : 0) + (s.slide ? 97 : 0) + (s.tie ? 13 : 0) + (s.ratchet || 1) * 7 + s.prob + s.cond * 3; h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(16).padStart(8, '0').toUpperCase(); }

@@ -1,0 +1,26 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Engine tests (native)
+        run: mkdir -p build && c++ -std=c++17 -O2 -Wall -Wno-unused -Wno-misleading-indentation tests/engine_test.cpp -o build/engine_test && ./build/engine_test
+      - name: Web tests (real WebAssembly engine)
+        run: node --test tests/pattern.test.mjs
+      - name: Rebuild WebAssembly and offline file
+        run: sudo apt-get install -y lld >/dev/null && ./tools/build_wasm.sh && python3 build_offline.py && node --test tests/pattern.test.mjs
+      - name: Browser end-to-end
+        run: |
+          pip install playwright && python3 -m playwright install --with-deps chromium
+          python3 -m http.server 8811 & sleep 2
+          SHOTS=shots python3 tests/e2e/smoke.py http://localhost:8811/web/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshots
+          path: shots
