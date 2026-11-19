@@ -80,7 +80,7 @@ jobs:
           tag_name: fm1-v${{ env.VERSION }}-r${{ github.run_number }}
           name: DFD ACID ENGINE ${{ env.VERSION }} for the M-VAVE FM-1
           prerelease: false
-          make_latest: false
+          make_latest: true
           files: |
             DFD-ACID-ENGINE-FM1-${{ env.VERSION }}.fwsc
             manual/DFD-ACID-ENGINE-FM1-Manual-EN.pdf
