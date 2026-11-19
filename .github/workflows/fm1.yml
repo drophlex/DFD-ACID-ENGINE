@@ -88,5 +88,5 @@ jobs:
           body: |
             BETA · built and host-tested automatically; NOT yet tested on a real FM-1.
             Install: open https://drophlex.github.io/DFD-ACID-ENGINE/fm1/install/ in Chrome or Edge with the FM-1 on USB and press Install
-            (it backs up first and can take you back to the official firmware).
+            (back up your music first; it can always take you back to the official firmware).
             DARK FUNK DURCAL DESIGN · DESARROLLADO EN POLARIS SOUND LAB · MÉRIDA, YUCATÁN, MÉXICO

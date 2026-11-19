@@ -71,7 +71,7 @@ Validated automatically with pluginval (strictness 8, Mac and Windows) and auval
 
 ### 🎛 M-VAVE FM-1 · BETA (not yet tested on hardware)
 
-Open the **[installer](https://drophlex.github.io/DFD-ACID-ENGINE/fm1/install/)** in Chrome or Edge with the FM-1 on USB → **Install** (it backs up first and can always take you back to the official firmware).
+Open the **[installer](https://drophlex.github.io/DFD-ACID-ENGINE/fm1/install/)** in Chrome or Edge with the FM-1 on USB → **Install** (back up your music first; the installer can always take you back to the official firmware).
 `PRESETS` style · `ALGORITHM` sound · `OCT+` generate · `OCT-` mutate · `FX` DIRTY page (FILTH · PUMP · ZAP · WIDTH). The FM-1 plays the web generator's own patterns, note for note.
 
 ## 📸 Pictures
@@ -145,7 +145,7 @@ Todo viene **en inglés** con un botón para pasarlo a **español**: la web (**E
 
 **Plug-in (BETA):** descárgalo de [Releases](https://github.com/drophlex/DFD-ACID-ENGINE/releases); Mac: clic derecho en *Install DFD ACID ENGINE.command* → Abrir; Windows: *Install.bat* → Sí. Validado con pluginval y auval, aún sin pruebas a mano en todos los DAW.
 
-**FM-1 (BETA, aún sin probar en hardware):** abre el [instalador](https://drophlex.github.io/DFD-ACID-ENGINE/fm1/install/) en Chrome o Edge → Instalar (respalda primero y siempre puede regresarte al firmware oficial).
+**FM-1 (BETA, aún sin probar en hardware):** abre el [instalador](https://drophlex.github.io/DFD-ACID-ENGINE/fm1/install/) en Chrome o Edge → Instalar (respalda tu música primero; el instalador siempre puede regresarte al firmware oficial).
 
 **DIRTY LAB:** electro house sucio en un botón: muros de sierras distorsionadas, riffs en octavas, zaps, el bombeo; 6 familias de riffs, 9 sonidos sucios y 6 macros.
 
