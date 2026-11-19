@@ -7,29 +7,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DFD ACID ENGINE · FM-1 Installer</title>
 <style>
-  :root { --bg: #e9e8df; --fg: #1a1c19; --dim: #53584b; }
+  :root { --bg: #111216; --fg: #edf0e9; --dim: #96999c; }
   body { margin: 0; background: var(--bg); color: var(--fg);
-         font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; }
+         font: 16px/1.6 "Helvetica Neue", Helvetica, Arial, sans-serif; }
   main { max-width: 520px; margin: 0 auto; padding: 48px 16px; }
   h1 { font-size: 24px; font-weight: 600; margin: 0 0 24px; }
-  .don { display:inline-block; font-size:12px; letter-spacing:.08em; color:#1a1c19; background:#cefe65; border:1px solid #24271d; border-radius:99px; padding:3px 10px; text-decoration:none; white-space:nowrap }
-  .don:hover { background:#b8ec4e }
+  .don { display:inline-block; font-size:12px; letter-spacing:.08em; color:#1a1c19; background:#ff7147; border:1px solid #ff7147; border-radius:0; padding:3px 10px; text-decoration:none; white-space:nowrap }
+  .don:hover { background:#ff9472 }
   .lang { float: right; font-size: 13px; color: var(--dim); cursor: pointer; text-decoration: underline; background: none; padding: 0; color: var(--dim); }
   p { margin: 0 0 16px; }
-  button { font: inherit; font-weight: 700; background: #cefe65; color: #1a1c19; border: 1px solid #24271d; border-radius: 6px; padding: 10px 20px; cursor: pointer; }
+  button { font: inherit; font-weight: 800; letter-spacing:.06em; background: #c1ff3a; color: #111216; border: 1px solid #c1ff3a; border-radius: 0; padding: 10px 20px; cursor: pointer; }
   button:disabled { opacity: .3; cursor: default; }
   #status { margin-top: 16px; min-height: 1.6em; }
   .small { color: var(--dim); font-size: 13px; }
   progress { width: 100%; height: 4px; margin-top: 16px; }
+  .mark { display:inline-grid; grid-template-columns:repeat(3,1fr); width:84px; font-weight:900; font-size:26px; letter-spacing:-.06em; margin-bottom:14px }
+  .mark span { background:#c1ff3a; color:#111216; padding:8px 4px; text-align:center; border-right:2px solid #111216 }
+  a { color:#a799ff }
   pre { color: var(--dim); font-size: 12px; white-space: pre-wrap; margin-top: 16px; }
 </style>
 </head>
 <body>
 <main>
   <button class="lang" id="lang"></button>
-  <h1 style="font-size:64px;line-height:.95;letter-spacing:-.08em;font-weight:750;margin-bottom:8px">Órbita</h1>
-  <p class="small" style="letter-spacing:.12em"><b style="letter-spacing:.04em;font-size:15px;color:#1a1c19" data-t="tag"></b><br><span data-t="fwfor"></span> 1.8.2-da1 · DARK FUNK DURCAL DESIGN · <span data-t="created"></span> POLARIS SOUND LAB · MÉRIDA, YUCATÁN, MÉXICO<br>INSTAGRAM <a href="https://www.instagram.com/polaris.sound.lab/" style="color:#6d55b8">@polaris.sound.lab</a> · YOUTUBE <a href="https://www.youtube.com/@PolarisSoundLab" style="color:#6d55b8">@PolarisSoundLab</a><br><span data-t="based"></span></p>
-  <div style="border:1px solid #c2412f;border-radius:8px;padding:10px 12px;margin:0 0 18px;font-size:14px"><b data-t="b0"></b><br><span data-t="b1"></span><br><span data-t="b2"></span><br><span data-t="b3"></span><br><span data-t="b4"></span></div>
+  <div class="mark"><span>D</span><span>F</span><span>D</span></div>
+  <h1 style="font-size:58px;line-height:.9;letter-spacing:-.08em;font-weight:900;margin-bottom:10px;text-transform:uppercase">Acid <span style="color:#c1ff3a">Engine</span></h1>
+  <p class="small" style="letter-spacing:.12em"><b style="letter-spacing:.04em;font-size:15px;color:#c1ff3a" data-t="tag"></b><br><span data-t="fwfor"></span> 1.8.2-da1 · BETA<br>DARK FUNK DURCAL DESIGN · DESARROLLADO EN POLARIS SOUND LAB · MÉRIDA, YUCATÁN, MÉXICO<br>INSTAGRAM <a href="https://www.instagram.com/polaris.sound.lab/">@polaris.sound.lab</a> · YOUTUBE <a href="https://www.youtube.com/@PolarisSoundLab">@PolarisSoundLab</a><br><span data-t="based"></span></p>
+  <div style="border:1px solid #ff7147;border-radius:0;padding:10px 12px;margin:0 0 18px;font-size:14px"><b data-t="b0"></b><br><span data-t="b1"></span><br><span data-t="b2"></span><br><span data-t="b3"></span><br><span data-t="b4"></span></div>
   <p class="small"><span data-t="free"></span> <a class="don" href="https://www.paypal.com/donate/?business=drophlex%40gmail.com&amp;no_recurring=0&amp;item_name=DFD-ACID-ENGINE&amp;currency_code=USD" target="_blank" rel="noopener" data-t="donate"></a></p>
   <p data-t="intro"></p>
   <p class="small" data-t="langNote"></p>
@@ -735,7 +739,7 @@ class BackupConnection {
 const $ = (id) => document.getElementById(id);
 const TEXT = {
   es: {
-    tag: "un instrumento generativo", fwfor: "FIRMWARE PARA M-VAVE FM-1", created: "CREADO EN",
+    tag: "acid · dirty · secuenciador", fwfor: "FIRMWARE PARA M-VAVE FM-1", created: "CREADO EN",
     based: "Basado en Felucca 1.8.2 (GPL-3.0) de Hügelton Instruments.",
     b0: "ANTES DE INSTALAR", b1: "1. Usa Chrome o Edge en una computadora. Conecta el FM-1 por USB (cable de datos) con la batería cargada.",
     b2: "2. Respalda tus proyectos y sonidos con el workbench oficial.", b3: "3. No desconectes ni apagues el FM-1 mientras escribe.",
@@ -770,10 +774,10 @@ const TEXT = {
     leave: "Escribiendo. No cierres la página.",
     license: "GPL-3.0, sin garantía. Código:",
     donate: "♥ Donar con PayPal", free: "DFD ACID ENGINE es gratis y de código abierto. Si te gusta, puedes apoyarlo:",
-    langNote: "Después de instalar, la pantalla está en inglés: en la página VISION gira K4 (LANG) a ES para verla en español.",
+    langNote: "Después de instalar, la pantalla está en inglés: presiona EDIT para verla en español (se recuerda). HOME muestra los controles.",
   },
   en: {
-    tag: "a generative instrument", fwfor: "FIRMWARE FOR M-VAVE FM-1", created: "CREATED AT",
+    tag: "acid · dirty · sequencer", fwfor: "FIRMWARE FOR M-VAVE FM-1", created: "CREATED AT",
     based: "Based on Felucca 1.8.2 (GPL-3.0) by Hügelton Instruments.",
     b0: "BEFORE INSTALLING", b1: "1. Use Chrome or Edge on a computer. Connect the FM-1 by USB (a data cable) with a charged battery.",
     b2: "2. Back up your projects and sounds with the official workbench.", b3: "3. Do not unplug or switch off the FM-1 while it writes.",
@@ -808,7 +812,7 @@ const TEXT = {
     leave: "Writing. Do not close the page.",
     license: "GPL-3.0, no warranty. Source:",
     donate: "♥ Donate with PayPal", free: "DFD ACID ENGINE is free and open source. If you enjoy it, you can support it:",
-    langNote: "After installing, the screen is in English; on the VISION page turn K4 (LANG) to ES for Spanish.",
+    langNote: "After installing, the screen is in English; press EDIT for Spanish (remembered). HOME shows the controls.",
   },
 };
 let lang = "en";   // English unless Español is chosen
