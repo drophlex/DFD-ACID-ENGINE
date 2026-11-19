@@ -8,19 +8,19 @@ Acid house · acid techno · filter house · big beat · rave · braindance · e
 <p align="center">
 <a href="https://drophlex.github.io/DFD-ACID-ENGINE/web/"><img src="https://img.shields.io/badge/PLAY%20NOW-IN%20THE%20BROWSER-c1ff3a?style=for-the-badge&labelColor=111216" alt="Play now"></a>
 <a href="https://drophlex.github.io/DFD-ACID-ENGINE/DFD_ACID_ENGINE_OFFLINE.html"><img src="https://img.shields.io/badge/OFFLINE-1%20HTML%20FILE-a799ff?style=for-the-badge&labelColor=111216" alt="Offline"></a>
-<img src="https://img.shields.io/badge/VST3%20%C2%B7%20AU-IN%20DEVELOPMENT-8cbcf5?style=for-the-badge&labelColor=111216" alt="Plugin: in development">
-<img src="https://img.shields.io/badge/M--VAVE%20FM--1-IN%20DEVELOPMENT-ff7147?style=for-the-badge&labelColor=111216" alt="FM-1: in development">
+<a href="https://github.com/drophlex/DFD-ACID-ENGINE/releases"><img src="https://img.shields.io/badge/VST3%20%C2%B7%20AU%20%C2%B7%20MAC%20%C2%B7%20WINDOWS-BETA-8cbcf5?style=for-the-badge&labelColor=111216" alt="Plugin beta"></a>
+<a href="https://drophlex.github.io/DFD-ACID-ENGINE/fm1/install/"><img src="https://img.shields.io/badge/M--VAVE%20FM--1-BETA%20(UNTESTED%20ON%20HARDWARE)-ff7147?style=for-the-badge&labelColor=111216" alt="FM-1 beta"></a>
 </p>
 <p align="center">
 <a href="https://drophlex.github.io/DFD-ACID-ENGINE/"><b>🌐 Website</b></a> ·
-<a href="manual/DFD-ACID-ENGINE-Web-Manual-EN.pdf"><b>📗 Manual (English)</b></a> · <a href="manual/DFD-ACID-ENGINE-Web-Manual-ES.pdf"><b>📕 Manual (Español)</b></a> · <a href="manual/DFD-ACID-ENGINE-Web-Manual-EN-ES.pdf"><b>English + Español</b></a> ·
+<b>📗 Manuals:</b> web <a href="manual/DFD-ACID-ENGINE-Web-Manual-EN.pdf">EN</a> / <a href="manual/DFD-ACID-ENGINE-Web-Manual-ES.pdf">ES</a> · plug-in <a href="manual/DFD-ACID-ENGINE-Plugin-Manual-EN.pdf">EN</a> / <a href="manual/DFD-ACID-ENGINE-Plugin-Manual-ES.pdf">ES</a> · FM-1 <a href="manual/DFD-ACID-ENGINE-FM1-Manual-EN.pdf">EN</a> / <a href="manual/DFD-ACID-ENGINE-FM1-Manual-ES.pdf">ES</a> ·
 <a href="CHANGELOG.md"><b>📝 Changelog</b></a> ·
 <a href="docs/STATUS.md"><b>📋 Status</b></a> ·
 <a href="https://www.paypal.com/donate/?business=drophlex%40gmail.com&currency_code=MXN"><b>♥ Donate</b></a> ·
 <a href="#español"><b>Español</b></a>
 </p>
 
-Everything comes **in English**, with a button to switch to **Spanish**: the web (**ES**, top right) and the website (**ES**, top right). The **manual** (17 pages: 5-minute start, every panel, Ableton Live, TB-3, troubleshooting, recipes) comes in English, Spanish, or both.
+Everything comes **in English**, with a button to switch to **Spanish**: the web (**ES**, top right) and the website (**ES**, top right). The **manuals** (web, plug-in, FM-1) come in English, Spanish, or both.
 
 ---
 
@@ -28,11 +28,12 @@ Everything comes **in English**, with a button to switch to **Spanish**: the web
 
 | | |
 |---|---|
-| ◉ **A generator that grooves** | 8 styles. Every line starts on the root, repeats like a real riff and turns around at the end of the bar. The generator tries 16 versions and keeps the most usable one. |
+| ☠ **DIRTY LAB** | Filthy electro house in one button: distorted saw walls (DIRTY and FIDGET voices), octave riffs, pitch zaps, the sidechain pump; 6 riff families, 9 dirty sounds, 6 big macros. |
+| ◉ **A generator that grooves** | 10 styles. Every line starts on the root, repeats like a real riff and turns around at the end of the bar. The generator tries 16 versions and keeps the most usable one. |
 | 🧬 **DNA lock** | Keep the notes, the rhythm, the accents or the slides you like and regenerate the rest. Same seed = same pattern, always. |
 | ⚡ **A real acid voice** | Band-limited saw ⇄ square, sub, noise, a 4-pole resonant ladder filter with bass compensation, accent build-up, glide, two drive stages, up to 4× oversampling. |
 | ▦ **Deep sequencer** | Up to 256 steps: accent, slide, tie, gate, velocity, ratchets, probability, conditions (FILL, 1ST, 1:2 …), micro-timing, swing. Patterns **A / B** with a morph. |
-| ✦ **8 tempo-synced FX** | Bit crush, ring mod, stutter, dynamic filter, chorus / flanger / phaser, compressor, ping-pong delay, reverb. |
+| ✦ **9 tempo-synced FX** | Sidechain pump, bit crush, ring mod, stutter, dynamic filter, chorus / flanger / phaser, compressor, ping-pong delay, reverb. |
 | ◬ **Live** | XY pad (morph × cutoff), FILL / STUTTER / MUTE / SQUELCH pads, transpose, playable keys (`Z`…`M`), **EASY** and **EXPERT** layers, undo (`Ctrl/⌘+Z`). |
 | ⇢ **Into your DAW** | `.mid` export (what you hear is what you get), **drag MIDI** into Ableton, WAV 48 kHz / 24-bit and stems. |
 | ⧉ **TB-3 TWIN LINK** | USB MIDI with the official MIDI implementation only: TWIN / HARDWARE / VIRTUAL modes, Shadow Capture, backup and restore of the active patch (always asks first). |
@@ -60,9 +61,18 @@ Everything comes **in English**, with a button to switch to **Spanish**: the web
 
 USB MIDI is not USB audio: record the TB-3's sound through your audio interface or DAW.
 
-### 🎹 Plugin · 🎛 FM-1
+### 🎹 Plugin (VST3 · AU · app) · BETA
 
-Both are **in development** on the same engine (`engine/dfd_acid.h`). They will appear here only once they are built, validated and tested on real hardware.
+1. Download the newest **plug-in** release from **[Releases](https://github.com/drophlex/DFD-ACID-ENGINE/releases)**: `DFD-ACID-ENGINE-Mac.zip` (Apple Silicon + Intel, macOS 11+) or `DFD-ACID-ENGINE-Windows.zip` (Windows 10/11 x64).
+2. Mac: right-click **Install DFD ACID ENGINE.command** → **Open**. Windows: double-click **Install.bat** → **Yes**.
+3. In your DAW: instruments → *Polaris Sound Lab* → **DFD ACID ENGINE**. It follows the DAW's tempo and bar; MIDI in plays it, MIDI out sends the sequence (to a TB-3 too).
+
+Validated automatically with pluginval (strictness 8, Mac and Windows) and auval (Mac). Not yet tested by hand in every DAW.
+
+### 🎛 M-VAVE FM-1 · BETA (not yet tested on hardware)
+
+Open the **[installer](https://drophlex.github.io/DFD-ACID-ENGINE/fm1/install/)** in Chrome or Edge with the FM-1 on USB → **Install** (it backs up first and can always take you back to the official firmware).
+`PRESETS` style · `ALGORITHM` sound · `OCT+` generate · `OCT-` mutate · `FX` DIRTY page (FILTH · PUMP · ZAP · WIDTH). The FM-1 plays the web generator's own patterns, note for note.
 
 ## 📸 Pictures
 
@@ -81,7 +91,9 @@ engine/dfd_acid.h     the whole instrument in one header-only C++17 file: voice,
 engine/wasm.cpp       the engine as WebAssembly (24 KB) for the page, the AudioWorklet and offline render
 web/                  the page: index.html, main.js, engine.js, pattern.js (generator), tb3-midi.js, i18n.js
 tests/                engine_test.cpp (30 native checks), pattern.test.mjs (11), e2e/smoke.py (browser)
-vst3/  fm1/           the plugin and FM-1 code (in development)
+plugin/               the VST3 / AU / app (JUCE 8, the page in a web view, the native engine)
+fm1/                  the FM-1 firmware: Felucca 1.8.2's drivers + DFD ACID's voice, screens and the web generator's patterns
+manual/               the manuals (PDF): web, plug-in, FM-1 · English, Spanish, both
 docs/handoff/         the original brief and documentation
 ```
 
@@ -129,9 +141,13 @@ Todo viene **en inglés** con un botón para pasarlo a **español**: la web (**E
 
 **Con una TB-3:** cable USB de **datos**, **Chrome** o **Edge**, **CONECTAR USB MIDI**, y **TWIN LINK = TWIN**. ¿Sin TB-3? Marca **DEMO**. USB MIDI no es audio USB: graba el sonido de la TB-3 con tu interfaz o tu DAW.
 
-**Manual:** [español](manual/DFD-ACID-ENGINE-Web-Manual-ES.pdf) · [inglés](manual/DFD-ACID-ENGINE-Web-Manual-EN.pdf) · [los dos](manual/DFD-ACID-ENGINE-Web-Manual-EN-ES.pdf), 17 páginas: inicio en 5 minutos, cada panel, Ableton Live, TB-3, problemas y recetas.
+**Manuales:** web [español](manual/DFD-ACID-ENGINE-Web-Manual-ES.pdf) / [inglés](manual/DFD-ACID-ENGINE-Web-Manual-EN.pdf) · plug-in [español](manual/DFD-ACID-ENGINE-Plugin-Manual-ES.pdf) / [inglés](manual/DFD-ACID-ENGINE-Plugin-Manual-EN.pdf) · FM-1 [español](manual/DFD-ACID-ENGINE-FM1-Manual-ES.pdf) / [inglés](manual/DFD-ACID-ENGINE-FM1-Manual-EN.pdf).
 
-**Plugin y FM-1:** en desarrollo sobre el mismo motor. Se publican aquí solo cuando estén compilados, validados y probados en hardware real.
+**Plug-in (BETA):** descárgalo de [Releases](https://github.com/drophlex/DFD-ACID-ENGINE/releases); Mac: clic derecho en *Install DFD ACID ENGINE.command* → Abrir; Windows: *Install.bat* → Sí. Validado con pluginval y auval, aún sin pruebas a mano en todos los DAW.
+
+**FM-1 (BETA, aún sin probar en hardware):** abre el [instalador](https://drophlex.github.io/DFD-ACID-ENGINE/fm1/install/) en Chrome o Edge → Instalar (respalda primero y siempre puede regresarte al firmware oficial).
+
+**DIRTY LAB:** electro house sucio en un botón: muros de sierras distorsionadas, riffs en octavas, zaps, el bombeo; 6 familias de riffs, 9 sonidos sucios y 6 macros.
 
 **Apoya:** gratis para siempre. **[Dona con PayPal](https://www.paypal.com/donate/?business=drophlex%40gmail.com&currency_code=MXN)** · Instagram **[@polaris.sound.lab](https://www.instagram.com/polaris.sound.lab/)** · YouTube **[@PolarisSoundLab](https://www.youtube.com/@PolarisSoundLab)**
 

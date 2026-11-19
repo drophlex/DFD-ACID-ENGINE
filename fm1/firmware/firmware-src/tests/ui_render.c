@@ -2312,7 +2312,11 @@ int main(int argc, char **argv)
         acid.lock = 1; acid.sig = ~0u; acid_draw(); write_ppm(out, "ACID", "dirty_lock"); acid.lock = 0; acid.page = 0;
         acid.info = 1; acid.sig = ~0u; acid_draw(); write_ppm(out, "ACID", "info"); acid.info = 0;
         lang_es = 1; acid_style(9, 1); song.playing = 1; trk[0].seq_idx = 5; acid.sig = ~0u; acid_draw(); write_ppm(out, "ACID", "es_fidget");
-        acid.info = 1; acid.sig = ~0u; acid_draw(); write_ppm(out, "ACID", "es_info"); acid.info = 0; lang_es = 0;
+        acid.info = 1; acid.sig = ~0u; acid_draw(); write_ppm(out, "ACID", "es_info"); acid.info = 0;
+        acid.page = 0; acid_style(0, 1); trk[0].seq_idx = 2; acid.sig = ~0u; acid_draw(); write_ppm(out, "ACID", "es_style00");
+        acid.page = 1; acid_style(8, 1); trk[0].seq_idx = 8; acid.sig = ~0u; acid_draw(); write_ppm(out, "ACID", "es_style08");
+        acid.hot_ms = fm1_ms | 1u; acid.hot_what = 10; acid.sig = ~0u; acid_draw(); write_ppm(out, "ACID", "es_hot_style"); acid.hot_ms = 0;
+        acid.page = 0; lang_es = 0;
         fclose(rep);
         return 0;
     }

@@ -2,7 +2,7 @@ name: plugin
 on:
   push:
     branches: [main]
-    paths: ['engine/**', 'web/**', 'plugin/**', 'build_offline.py', '.github/workflows/plugin.yml']
+    paths: ['engine/**', 'web/**', 'plugin/**', 'build_offline.py', 'manual/DFD-ACID-ENGINE-Plugin-*', '.github/workflows/plugin.yml']
   workflow_dispatch:
 permissions:
   contents: write
@@ -90,6 +90,9 @@ jobs:
           files: |
             dist/DFD-ACID-ENGINE-Mac.zip
             dist/DFD-ACID-ENGINE-Windows.zip
+            manual/DFD-ACID-ENGINE-Plugin-Manual-EN.pdf
+            manual/DFD-ACID-ENGINE-Plugin-Manual-ES.pdf
+            manual/DFD-ACID-ENGINE-Plugin-Manual-EN-ES.pdf
           body: |
             BETA · built and validated automatically (pluginval strictness 8 on Mac and Windows, auval on Mac). Not yet tested by hand in a DAW.
             Mac (Apple Silicon + Intel, macOS 11+): unzip, right-click "Install DFD ACID ENGINE.command" → Open.

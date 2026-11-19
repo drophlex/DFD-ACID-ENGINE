@@ -7,6 +7,9 @@
 - **DIRTY LAB**, a special section for filthy electro house: one-button **☠ DIRTY GENERATE**, 6 riff families (octave pump, zap bounce,
   grind 16ths, call & response, stab gate, drop ride), 9 original dirty sounds and 6 big macros (FILTH · PUMP · ZAP · WIDTH · SCREAM · BITE).
 - Two new styles: **ELECTRO HOUSE / DIRTY** and **BLOGHOUSE / FIDGET**. Every style now brings its own sound when you pick it.
+- **Plug-in** (beta): VST3 · AU · standalone app for Mac (universal) and Windows x64, the page in the system web view over the native engine; host sync, MIDI in / out, every parameter automatable, state with the set, save windows, drag MIDI. pluginval 8 + auval in CI.
+- **FM-1 firmware** (beta, untested on hardware): the DFD ACID voice, its own screens, the web generator's patterns note for note, a DIRTY page; installer with backup and way back.
+- **Manuals** for the web, the plug-in and the FM-1, English / Spanish / both.
 - Generator keeps notes in key at the edges of the range (folds octaves instead of clamping). 2 new factory patterns.
 
 ## 1.0.0 · 2026-11-18 · web

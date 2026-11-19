@@ -80,7 +80,11 @@ jobs:
           tag_name: fm1-v${{ env.VERSION }}-r${{ github.run_number }}
           name: DFD ACID ENGINE ${{ env.VERSION }} for the M-VAVE FM-1 · BETA (not yet tested on hardware)
           prerelease: true
-          files: DFD-ACID-ENGINE-FM1-${{ env.VERSION }}.fwsc
+          files: |
+            DFD-ACID-ENGINE-FM1-${{ env.VERSION }}.fwsc
+            manual/DFD-ACID-ENGINE-FM1-Manual-EN.pdf
+            manual/DFD-ACID-ENGINE-FM1-Manual-ES.pdf
+            manual/DFD-ACID-ENGINE-FM1-Manual-EN-ES.pdf
           body: |
             BETA · built and host-tested automatically; NOT yet tested on a real FM-1.
             Install: open https://drophlex.github.io/DFD-ACID-ENGINE/fm1/install/ in Chrome or Edge with the FM-1 on USB and press Install

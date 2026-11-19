@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # DFD ACID ENGINE · web user manual. English edition, Spanish edition and both together.
 # python3 tools/manual/shots.py && python3 tools/manual/manual.py   ->  manual/*.pdf
-import os, asyncio
+import os, sys, asyncio
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.abspath(os.path.join(HERE, '..', '..'))
 BUILD = os.path.join(ROOT, 'build', 'manual'); OUT = os.path.join(ROOT, 'manual')
 os.makedirs(OUT, exist_ok=True)
@@ -28,21 +28,24 @@ def head(num, kick, title): return f'<div class="sec"><span class="num">{num}</s
 PAGES = []
 def page(title, body, cls=''): PAGES.append((cls, body, title))
 
-def build():
-    global PAGES; PAGES = []
-    # ------------------------------------------------------------ cover
+def cover():
     page('', f'''<div class="cover">
 <div class="cmark"><span>D</span><span>F</span><span>D</span></div>
-<div class="cline">{T('USER MANUAL', 'MANUAL DE USO')} · WEB · v1.0</div>
+<div class="cline">{T('USER MANUAL', 'MANUAL DE USO')} · {EDITION_NAME} · v{EDITION_VER}</div>
 <div class="ctitle">ACID<br><em>ENGINE</em></div>
 <div class="csub">{T('SEQUENCER / SYNTHESIZER / PATTERN LAB / HARDWARE TWIN', 'SECUENCIADOR / SINTETIZADOR / LABORATORIO DE PATRONES / GEMELO DE HARDWARE')}</div>
 <div class="corbit a"></div><div class="corbit b"></div><div class="corbit c"></div>
 <div class="clang">{'ENGLISH · ESPAÑOL' if BOTH else T('ENGLISH EDITION', 'EDICIÓN EN ESPAÑOL')}</div>
 <div class="cfoot">{CREDIT}<br><a href="{IG}">Instagram @polaris.sound.lab</a> · <a href="{YT}">YouTube @PolarisSoundLab</a> · <a href="{DON}">♥ {T('Donate', 'Donar')}</a></div></div>''', 'coverp')
 
+def build_web():
+    global PAGES; PAGES = []
+    # ------------------------------------------------------------ cover
+    cover()
+
     # ------------------------------------------------------------ welcome
     toc = [T('Start in five minutes', 'Empieza en cinco minutos'), T('The screen', 'La pantalla'), T('Toolbar and transport', 'Barra y transporte'), T('The generator', 'El generador'),
-           T('The step matrix', 'La matriz de pasos'), T('Step inspector and conditions', 'Inspector de paso y condiciones'), T('Sound design', 'Diseño de sonido'), T('FX rack', 'Rack de efectos'),
+           T('The step matrix', 'La matriz de pasos'), T('Step inspector and conditions', 'Inspector de paso y condiciones'), T('Sound design', 'Diseño de sonido'), T('FX rack', 'Rack de efectos'), T('DIRTY LAB', 'DIRTY LAB'),
            T('Perform live', 'Tocar en vivo'), T('Archive and exports', 'Archivo y exportación'), T('With Ableton Live', 'Con Ableton Live'), T('TB-3 TWIN LINK', 'TB-3 TWIN LINK'),
            T('Troubleshooting', 'Solución de problemas'), T('Recipes', 'Recetas'), T('Credits and support', 'Créditos y apoyo')]
     page(T('Welcome', 'Bienvenida'), f'''{head('00', T('WELCOME', 'BIENVENIDA'), T('Acid lines you would <em>actually use.</em>', 'Líneas ácidas que <em>sí usarías.</em>'))}
@@ -66,16 +69,17 @@ def build():
 {tip(T(f'Two layers: {k("EASY")} shows what you need to make music; {k("EXPERT")} (top right) opens probability, conditions, the step inspector and every parameter.', f'Dos capas: {k("FÁCIL")} muestra lo necesario para hacer música; {k("EXPERTO")} (arriba a la derecha) abre probabilidad, condiciones, el inspector de paso y todos los parámetros.'))}''')
 
     # ------------------------------------------------------------ the screen
-    page(T('The screen', 'La pantalla'), f'''{head('02', T('THE SCREEN', 'LA PANTALLA'), T('Six panels, <em>one machine.</em>', 'Seis paneles, <em>una máquina.</em>'))}
+    page(T('The screen', 'La pantalla'), f'''{head('02', T('THE SCREEN', 'LA PANTALLA'), T('Eight panels, <em>one machine.</em>', 'Ocho paneles, <em>una máquina.</em>'))}
 {img('easy', T('<b>fig. 2</b> · the EASY layer: generator, step matrix with sound design, and the archive.', '<b>fig. 2</b> · la capa FÁCIL: generador, matriz de pasos con diseño de sonido, y el archivo.'))}
 {table([T('Panel', 'Panel'), T('What it does', 'Qué hace'), T('Page', 'Página')], [
  ['01 / ' + T('GENERATOR', 'GENERADOR'), T('writes patterns in 8 styles, mutates them, locks the genes you like', 'escribe patrones en 8 estilos, los muta, bloquea los genes que te gustan'), '06'],
  ['02 / ' + T('STEP MATRIX', 'MATRIZ DE PASOS'), T('the pattern: notes, accents, slides, ties, ratchets, one cell per 16th', 'el patrón: notas, acentos, slides, ligaduras, ratchets, una celda por semicorchea'), '07'],
  ['03 / ' + T('SOUND DESIGN', 'DISEÑO DE SONIDO'), T('the acid voice: oscillator, filter, envelope, accent, drive', 'la voz acid: oscilador, filtro, envolvente, acento, drive'), '09'],
- ['04 / ' + T('MACHINE MEMORY', 'MEMORIA'), T('factory patterns, your saved patterns, project files, live readouts', 'patrones de fábrica, tus patrones guardados, archivos de proyecto, lecturas en vivo'), '12'],
- ['05 / ' + T('FX RACK', 'RACK DE EFECTOS'), T('eight effects in a chain, all in time with the tempo', 'ocho efectos en cadena, todos al tempo'), '10'],
- ['06 / ' + T('PERFORM', 'EN VIVO'), T('XY pad, hold pads, transpose and keys for playing live', 'pad XY, pads, transposición y teclas para tocar en vivo'), '11'],
- ['007 / TB-3 TWIN LINK', T('the bridge to a Roland TB-3 over USB MIDI', 'el puente a una Roland TB-3 por USB MIDI'), '14']], 'tight')}
+ ['04 / ' + T('MACHINE MEMORY', 'MEMORIA'), T('factory patterns, your saved patterns, project files, live readouts', 'patrones de fábrica, tus patrones guardados, archivos de proyecto, lecturas en vivo'), '13'],
+ ['☠ DIRTY LAB', T('filthy electro house in one button: riff families, dirty sounds, six macros', 'electro house sucio en un botón: familias de riffs, sonidos sucios, seis macros'), '11'],
+ ['06 / ' + T('FX RACK', 'RACK DE EFECTOS'), T('eight effects in a chain, all in time with the tempo', 'ocho efectos en cadena, todos al tempo'), '10'],
+ ['07 / ' + T('PERFORM', 'EN VIVO'), T('XY pad, hold pads, transpose and keys for playing live', 'pad XY, pads, transposición y teclas para tocar en vivo'), '12'],
+ ['008 / TB-3 TWIN LINK', T('the bridge to a Roland TB-3 over USB MIDI', 'el puente a una Roland TB-3 por USB MIDI'), '15']], 'tight')}
 <p class="small">{T('The <b>LINK MONITOR</b> line at the bottom of the TB-3 panel tells you what just happened: every export, connection and error is written there.', 'La línea <b>MONITOR DEL LINK</b> al fondo del panel TB-3 te dice qué acaba de pasar: cada exportación, conexión y error se escribe ahí.')}</p>''')
 
     # ------------------------------------------------------------ toolbar
@@ -89,7 +93,7 @@ def build():
  [k(T('EDIT', 'EDITAR')) + ' A / B', T('there are always two patterns. This chooses which one you see and edit.', 'siempre hay dos patrones. Esto elige cuál ves y editas.')],
  [k('A ⇄ B MORPH'), T('blends A into B step by step while it plays: at 50 % about half of the steps come from B. Great for slow builds.', 'mezcla A con B paso a paso mientras suena: al 50 % cerca de la mitad de los pasos vienen de B. Ideal para subidas lentas.')],
  [k(T('QUALITY', 'CALIDAD')) + ' <span class="x">EXPERT</span>', T('oversampling: ECO 1× (phones), HQ 2× (default), ULTRA 4× (cleanest highs, more CPU).', 'sobremuestreo: ECO 1× (teléfonos), HQ 2× (por defecto), ULTRA 4× (agudos más limpios, más CPU).')],
- [k('↓ MIDI') + ' ' + k(T('⇲ DRAG MIDI', '⇲ ARRASTRA MIDI')), T('a .mid of exactly what you hear (page 12). Drag the dashed button straight into a DAW.', 'un .mid de exactamente lo que oyes (página 12). Arrastra el botón punteado directo a un DAW.')],
+ [k('↓ MIDI') + ' ' + k(T('⇲ DRAG MIDI', '⇲ ARRASTRA MIDI')), T('a .mid of exactly what you hear (page 13). Drag the dashed button straight into a DAW.', 'un .mid de exactamente lo que oyes (página 13). Arrastra el botón punteado directo a un DAW.')],
  [k('↓ WAV') + ' ' + k('↓ STEMS') + ' <span class="x">EXPERT</span>', T('render audio at 48 kHz / 24-bit, faster than real time.', 'renderiza audio a 48 kHz / 24 bits, más rápido que en tiempo real.')],
  [k(T('PANIC', 'PÁNICO')), T('silences every note, in the browser and on the TB-3.', 'calla todas las notas, en el navegador y en la TB-3.')]])}
 {tip(T(f'Undo and redo any pattern edit with {k("Ctrl/⌘ + Z")} and {k("Ctrl/⌘ + Shift + Z")}.', f'Deshaz y rehaz cualquier cambio del patrón con {k("Ctrl/⌘ + Z")} y {k("Ctrl/⌘ + Shift + Z")}.'))}''')
@@ -102,10 +106,12 @@ def build():
               ('RAVE / HARDCORE', '140–160', T('minor chords broken into a line, octaves up, lots of slides', 'acordes menores rotos en una línea, octavas arriba, muchos slides')),
               ('BRAINDANCE / DRILL', '150–180', T('fast ratchets, odd intervals, probability: always anchored on the root so it stays musical', 'ratchets rápidos, intervalos raros, probabilidad: siempre anclado en la tónica para que siga musical')),
               ('ELECTRO / PUNK', '125–135', T('a driving root and octave pulse in short, hard notes', 'un pulso de tónica y octava que empuja, en notas cortas y duras')),
-              ('DEEP / HYPNOTIC', '118–124', T('few notes, long gates and ties: space for the filter and the delay', 'pocas notas, gates largos y ligaduras: espacio para el filtro y el delay'))]
-    page(T('The generator', 'El generador'), f'''{head('04', T('GENERATOR', 'GENERADOR'), T('Eight styles that <em>groove.</em>', 'Ocho estilos con <em>groove.</em>'))}
+              ('DEEP / HYPNOTIC', '118–124', T('few notes, long gates and ties: space for the filter and the delay', 'pocas notas, gates largos y ligaduras: espacio para el filtro y el delay')),
+              ('ELECTRO HOUSE / DIRTY', '126–130', T('octave riffs on distorted saw walls, offbeat accents, short notes, pump', 'riffs en octavas sobre muros de sierras distorsionadas, acentos a contratiempo, notas cortas, bombeo')),
+              ('BLOGHOUSE / FIDGET', '126–132', T('choppy syncopation, pitch zaps, wider leaps', 'síncopa entrecortada, zaps de tono, saltos más amplios'))]
+    page(T('The generator', 'El generador'), f'''{head('04', T('GENERATOR', 'GENERADOR'), T('Ten styles that <em>groove.</em>', 'Diez estilos con <em>groove.</em>'))}
 <div class="two g"><div class="tall">{img('gen_expert', T('<b>fig. 4</b> · EXPERT layer.', '<b>fig. 4</b> · capa EXPERTO.'))}</div><div>
-<p>{T('Every pattern is built like a real riff: a short motif on the root of your key, repeated with small changes, with a turnaround at the end of the bar. The generator writes <b>16 versions</b> and keeps the most usable one (on the root, singable leaps, a groove that repeats). The same seed always gives the same pattern.', 'Cada patrón se construye como un riff real: un motivo corto sobre la tónica de tu tono, repetido con pequeños cambios y con una vuelta al final del compás. El generador escribe <b>16 versiones</b> y se queda con la más usable (en la tónica, saltos cantables, un groove que se repite). La misma semilla siempre da el mismo patrón.')}</p>
+<p class="small">{T('Picking a style also loads its own sound.', 'Elegir un estilo también carga su propio sonido.')}</p><p>{T('Every pattern is built like a real riff: a short motif on the root of your key, repeated with small changes, with a turnaround at the end of the bar. The generator writes <b>16 versions</b> and keeps the most usable one (on the root, singable leaps, a groove that repeats). The same seed always gives the same pattern.', 'Cada patrón se construye como un riff real: un motivo corto sobre la tónica de tu tono, repetido con pequeños cambios y con una vuelta al final del compás. El generador escribe <b>16 versiones</b> y se queda con la más usable (en la tónica, saltos cantables, un groove que se repite). La misma semilla siempre da el mismo patrón.')}</p>
 {table([T('Style', 'Estilo'), 'BPM', T('Character', 'Carácter')], [[f'<b>{a}</b>', b, c] for a, b, c in styles], 'tight small')}</div></div>
 {table([T('Control', 'Control'), T('What it does', 'Qué hace')], [
  [k(T('KEY', 'TONO')) + ' ' + k(T('SCALE', 'ESCALA')), T('the root note and the notes allowed. MINOR, PHRYGIAN and DORIAN are the acid classics; CHROMATIC lets the style use any note.', 'la nota base y las notas permitidas. MENOR, FRIGIO y DÓRICO son los clásicos del acid; CROMÁTICA deja al estilo usar cualquier nota.')],
@@ -153,32 +159,51 @@ def build():
 
     # ------------------------------------------------------------ sound design
     page(T('Sound design', 'Diseño de sonido'), f'''{head('07', T('SOUND DESIGN', 'DISEÑO DE SONIDO'), T('The voice: <em>squelch on demand.</em>', 'La voz: <em>squelch a la orden.</em>'))}
-{img('sound', T('<b>fig. 7</b> · EXPERT shows the full voice. Double-click any slider to reset it.', '<b>fig. 7</b> · EXPERTO muestra la voz completa. Doble clic en cualquier slider lo regresa a su valor.'), '74%')}
+{img('sound', T('<b>fig. 7</b> · EXPERT shows the full voice. Double-click any slider to reset it.', '<b>fig. 7</b> · EXPERTO muestra la voz completa. Doble clic en cualquier slider lo regresa a su valor.'), '50%')}
 {table([T('Parameter', 'Parámetro'), T('What it does', 'Qué hace')], [
+ [T('VOICE', 'VOZ'), T('ACID: one oscillator, the classic. DIRTY: a wall of seven detuned saws (DETUNE widens it). FIDGET: two hard-detuned oscillators plus one an octave up', 'ACID: un oscilador, el clásico. DIRTY: un muro de siete sierras desafinadas (DESAFINACIÓN lo abre). FIDGET: dos osciladores muy desafinados más uno una octava arriba')],
  [T('SAW ⇄ SQUARE', 'ONDA'), T('blends the two classic waves; PULSE WIDTH shapes the square', 'mezcla las dos ondas clásicas; ANCHO DE PULSO da forma a la cuadrada')],
+ [T('FILTH · PITCH DROP', 'SUCIEDAD · CAÍDA DE TONO'), T('a wavefolder for grind; each note starting up to two octaves high and falling (DROP TIME sets how fast): the electro zap', 'un plegador de onda para ensuciar; cada nota empieza hasta dos octavas arriba y cae (TIEMPO DE CAÍDA marca qué tan rápido): el zap del electro')],
  [T('CUTOFF · RESONANCE', 'CORTE · RESONANCIA'), T('a 4-pole resonant low-pass. Resonance near the top whistles and self-oscillates; the bass is compensated so it does not get thin', 'un pasa-bajos resonante de 4 polos. La resonancia arriba silba y auto-oscila; los graves se compensan para que no se adelgace')],
  ['ENV MOD · ' + T('DECAY', 'CAÍDA'), T('how far and how long the envelope opens the filter on each note', 'qué tanto y por cuánto tiempo la envolvente abre el filtro en cada nota')],
  [T('ACCENT', 'ACENTO'), T('how much accented steps jump in volume and filter', 'cuánto saltan en volumen y filtro los pasos con acento')],
  ['SUB · ' + T('NOISE', 'RUIDO'), T('a sine one octave down for weight; noise for grit', 'una senoidal una octava abajo para dar peso; ruido para dar textura')],
  ['DRIVE · OVERDRIVE · ' + T('TONE', 'TONO'), T('drive before the filter (fat), overdrive after it (raw); tone tilts the result darker or brighter', 'drive antes del filtro (gordo), overdrive después (crudo); tono inclina el resultado a oscuro o brillante')],
  [T('SLIDE TIME', 'TIEMPO DE SLIDE') + ' · ' + T('AMP DECAY', 'CAÍDA DE AMP'), T('glide speed between slid notes; how the volume fades while a long note is held', 'velocidad del glide entre notas con slide; cómo baja el volumen mientras se sostiene una nota larga')],
- [T('TUNE · OCTAVE', 'AFINACIÓN · OCTAVA'), T('fine tune ±12 semitones and the octave ±2', 'afinación fina ±12 semitonos y la octava ±2')],
- [T('HUMANIZE', 'HUMANIZAR'), T('tiny timing and velocity changes, the same on every play', 'pequeños cambios de tiempo y velocidad, iguales en cada reproducción')],
  [T('VOLUME', 'VOLUMEN'), T('output level; a soft limiter never lets it clip', 'nivel de salida; un limitador suave nunca deja que sature')]], 'tight')}''')
 
     # ------------------------------------------------------------ FX
-    page(T('FX rack', 'Rack de efectos'), f'''{head('08', T('FX RACK', 'RACK DE EFECTOS'), T('Eight effects, <em>in time.</em>', 'Ocho efectos, <em>a tiempo.</em>'))}
-{img('fx', T('<b>fig. 8</b> · click a title to switch the effect on (lime) or off. EASY shows the main knob of each; EXPERT shows all.', '<b>fig. 8</b> · haz clic en un título para encender (verde) o apagar el efecto. FÁCIL muestra la perilla principal de cada uno; EXPERTO las muestra todas.'))}
+    page(T('FX rack', 'Rack de efectos'), f'''{head('08', T('FX RACK', 'RACK DE EFECTOS'), T('Nine effects, <em>in time.</em>', 'Nueve efectos, <em>a tiempo.</em>'))}
+{img('fx', T('<b>fig. 8</b> · click a title to switch the effect on (lime) or off. EASY shows the main knob of each; EXPERT shows all.', '<b>fig. 8</b> · haz clic en un título para encender (verde) o apagar el efecto. FÁCIL muestra la perilla principal de cada uno; EXPERTO las muestra todas.'), '64%')}
 {table([T('Effect', 'Efecto'), T('Controls', 'Controles'), T('Use it for', 'Úsalo para')], [
  ['CRUSH', T('mix · bits · rate', 'mezcla · bits · frecuencia'), T('lo-fi grit, broken digital edges', 'suciedad lo-fi, bordes digitales rotos')],
  ['RING MOD', T('mix · frequency', 'mezcla · frecuencia'), T('metallic, bell-like tones', 'tonos metálicos, de campana')],
  ['STUTTER', T('length 1/4 · 1/8 · 1/16 · 1/32', 'largo 1/4 · 1/8 · 1/16 · 1/32'), T('freezes and repeats a slice in time. Best held from the STUTTER pad', 'congela y repite un pedazo a tiempo. Mejor desde el pad STUTTER')],
  ['DYN FILTER', T('depth · cycle (steps) · resonance', 'profundidad · ciclo (pasos) · resonancia'), T('a second filter that sweeps in time, from 1 to 64 steps', 'un segundo filtro que barre a tiempo, de 1 a 64 pasos')],
  ['CHORUS · FLANGER · PHASER', T('mix · type · rate · depth · feedback', 'mezcla · tipo · velocidad · profundidad · realimentación'), T('width, jet sweeps, swirl', 'amplitud, barridos tipo jet, remolinos')],
+ ['SIDECHAIN PUMP', T('depth', 'profundidad'), T('ducks on every beat and breathes back, locked to the tempo: the electro house pump', 'baja en cada tiempo y vuelve a respirar, al tempo: el bombeo del electro house')],
  ['COMPRESSOR', T('threshold · ratio · makeup', 'umbral · ratio · ganancia'), T('on by default: keeps accents punchy and the level even', 'encendido por defecto: mantiene los acentos con golpe y el nivel parejo')],
  ['DELAY', T('mix · time (1/16 … 1/4D) · feedback · tone · ping-pong', 'mezcla · tiempo (1/16 … 1/4D) · realimentación · tono · ping-pong'), T('dub echoes. 3/16 is the classic acid delay', 'ecos dub. 3/16 es el delay acid clásico')],
  ['REVERB', T('mix · size · damping', 'mezcla · tamaño · amortiguación'), T('space; keep the mix low on basslines', 'espacio; deja la mezcla baja en líneas de bajo')]], 'tight')}
-<p class="small">{T('Order of the chain: crush → ring → stutter → dynamic filter → chorus / flanger / phaser → compressor → delay → reverb.', 'Orden de la cadena: crush → ring → stutter → filtro dinámico → chorus / flanger / phaser → compresor → delay → reverb.')}</p>''')
+<p class="small">{T('Order of the chain: pump → crush → ring → stutter → dynamic filter → chorus / flanger / phaser → compressor → delay → reverb.', 'Orden de la cadena: pump → crush → ring → stutter → filtro dinámico → chorus / flanger / phaser → compresor → delay → reverb.')}</p>''')
+
+    # ------------------------------------------------------------ DIRTY LAB
+    page('DIRTY LAB', f'''{head('☠', T('SPECIAL SECTION', 'SECCIÓN ESPECIAL'), T('DIRTY <em class="o">LAB.</em>', 'DIRTY <em class="o">LAB.</em>'))}
+<p class="lead">{T('Filthy electro house in one button: distorted saw walls, octave riffs, zaps and the pump. Press <b>☠ DIRTY GENERATE</b> and it picks a riff family and a dirty sound, writes pattern A and a variation in B, and starts playing.', 'Electro house sucio en un botón: muros de sierras distorsionadas, riffs en octavas, zaps y el bombeo. Presiona <b>☠ GENERAR DIRTY</b> y elige una familia de riffs y un sonido sucio, escribe el patrón A y una variación en B, y empieza a tocar.')}</p>
+{img('lab', T('<b>fig. 9</b> · the DIRTY LAB. The orange button in the toolbar jumps here.', '<b>fig. 9</b> · el DIRTY LAB. El botón naranja de la barra salta aquí.'))}
+<div class="two"><div>{table([T('Riff family', 'Familia'), T('What it does', 'Qué hace')], [
+ ['OCTAVE PUMP', T('root and octave on the 16ths, accents on the offbeat', 'tónica y octava en semicorcheas, acentos a contratiempo')],
+ ['ZAP BOUNCE', T('sparse, bouncing hits made for the pitch drop', 'golpes espaciados que rebotan, hechos para la caída de tono')],
+ ['GRIND 16THS', T('a relentless 16th grind on the root', 'una molienda de semicorcheas sobre la tónica')],
+ ['CALL & RESPONSE', T('a low phrase answered high, one bar', 'una frase grave contestada arriba, un compás')],
+ ['STAB GATE', T('short stabs on the offbeats, room for the drums', 'golpes cortos a contratiempo, espacio para la batería')],
+ ['DROP RIDE', T('busy, rolling, slides and ratchets for the drop', 'cargado, rodando, slides y ratchets para el drop')]], 'tight small')}</div><div>
+{table(['MACRO', T('Moves', 'Mueve')], [
+ [T('FILTH', 'SUCIEDAD'), T('fold, drive, overdrive, crush', 'plegado, drive, overdrive, crush')], [T('PUMP', 'BOMBEO'), T('the sidechain duck', 'el ducking de sidechain')],
+ ['ZAP', T('pitch drop and its time', 'caída de tono y su tiempo')], [T('WIDTH', 'ANCHO'), T('the detune of the saw wall', 'la desafinación del muro de sierras')],
+ [T('SCREAM', 'GRITO'), T('resonance and env mod', 'resonancia y env mod')], [T('BITE', 'MORDIDA'), T('cutoff', 'corte')]], 'tight small')}
+<p class="small">{T('9 dirty sounds: ROTTEN SAW · TEUTON GRIND · ZAP CANNON · OCTAVE MONSTER · 8-BIT BRUISER · SQUEAL PIG · BASS SLAB · GUTTER STAB · RAVE SIREN.', '9 sonidos sucios: ROTTEN SAW · TEUTON GRIND · ZAP CANNON · OCTAVE MONSTER · 8-BIT BRUISER · SQUEAL PIG · BASS SLAB · GUTTER STAB · RAVE SIREN.')}</p></div></div>
+{tip(T('Ride A ⇄ B MORPH on the XY pad: the lab always writes B as a variation of A.', 'Recorre el MORPH A ⇄ B en el pad XY: el lab siempre escribe B como una variación de A.'))}''', 'dirtyp')
 
     # ------------------------------------------------------------ perform
     page(T('Perform live', 'Tocar en vivo'), f'''{head('09', T('PERFORM', 'EN VIVO'), T('Hands on <em>the machine.</em>', 'Manos sobre <em>la máquina.</em>'))}
@@ -287,14 +312,15 @@ def build():
 CSS = open(os.path.join(HERE, 'manual.css')).read()
 BOTH = False
 OFF = 0
-def render(langs, out):
+EDITION_NAME, EDITION_VER = 'WEB', '1.1'
+def render(langs, out, builder=None, label='WEB MANUAL', label_es='MANUAL WEB'):
     global L, BOTH, OFF
     BOTH = len(langs) > 1; allp = []; npl = 0
     for lang in langs:
-        L = lang; OFF = npl; build(); off = npl
+        L = lang; OFF = npl; (builder or build_web)(); off = npl
         for i, (cls, body, title) in enumerate(PAGES):
             n = i + 1 + off
-            foot = '' if cls == 'coverp' else f'<footer><span>DFD / ACID ENGINE · {T("WEB MANUAL", "MANUAL WEB")} · {lang.upper()}</span><span>{title}</span><span class="pn">{n:02d}</span></footer>'
+            foot = '' if cls == 'coverp' else f'<footer><span>DFD / ACID ENGINE · {T(label, label_es)} · {lang.upper()}</span><span>{title}</span><span class="pn">{n:02d}</span></footer>'
             allp.append(f'<section class="page {cls}"><div class="rail"></div>{body}{foot}</section>')
         npl += len(PAGES)
     open(out, 'w').write(f'<!DOCTYPE html><html><head><meta charset="utf-8"><title>DFD ACID ENGINE · Manual</title><style>{CSS}</style></head><body>{"".join(allp)}</body></html>')
@@ -310,7 +336,16 @@ async def pdf(jobs):
             print(name, 'overflow:', over)
         await b.close()
 
+from manual_more import build_plugin, build_fm1, setup
+setup(globals())
+EDITIONS = [('Web', build_web, 'WEB', '1.1', 'WEB MANUAL', 'MANUAL WEB'), ('Plugin', build_plugin, 'VST3 · AU · APP', '1.1 BETA', 'PLUG-IN MANUAL', 'MANUAL DEL PLUG-IN'),
+            ('FM1', build_fm1, 'M-VAVE FM-1', '1.8.2-da1 BETA', 'FM-1 MANUAL', 'MANUAL FM-1')]
 jobs = []
-for langs, name in ((['en'], 'DFD-ACID-ENGINE-Web-Manual-EN'), (['es'], 'DFD-ACID-ENGINE-Web-Manual-ES'), (['en', 'es'], 'DFD-ACID-ENGINE-Web-Manual-EN-ES')):
-    src = os.path.join(BUILD, name + '.html'); render(langs, src); jobs.append((src, name + '.pdf'))
+only = sys.argv[1:] or [e[0] for e in EDITIONS]
+for ed, fn, ename, ever, lab, lab_es in EDITIONS:
+    if ed not in only: continue
+    EDITION_NAME, EDITION_VER = ename, ever
+    for langs, suf in ((['en'], 'EN'), (['es'], 'ES'), (['en', 'es'], 'EN-ES')):
+        name = f'DFD-ACID-ENGINE-{ed}-Manual-{suf}'
+        src = os.path.join(BUILD, name + '.html'); render(langs, src, fn, lab, lab_es); jobs.append((src, name + '.pdf'))
 asyncio.run(pdf(jobs))

@@ -71,3 +71,4 @@ footer .pn{color:var(--ink);background:var(--acid);padding:3px 6px;margin-top:-4
 .back .small{color:#3e4b31;font-weight:400;font-size:7.6pt;margin-top:.12in}
 .paypal{display:inline-block;background:var(--ink);color:var(--acid)!important;text-decoration:none!important;font:700 11pt/1 H;letter-spacing:.06em;padding:13px 18px;margin:.06in 0}
 .two.g{grid-template-columns:1.6in 1fr}.tall figure img{max-height:5.5in;object-fit:cover;object-position:top}
+h1 em.o{color:var(--orange)}.dirtyp .rail{background:repeating-linear-gradient(180deg,var(--orange) 0 .3in,var(--ink) .3in .6in)}

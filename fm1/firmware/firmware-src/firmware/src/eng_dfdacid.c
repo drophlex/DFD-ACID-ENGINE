@@ -98,7 +98,7 @@ static const preset_t DFDV_PRESETS[] = {
 };
 
 static const engine_t ENG_DFDACID = {
-    .name = "DFD ACID",
+    .name = "DFDACID",
     .page_title = {"VOICE", "DIRT"},
     .edit = {
         {"VOICE", F_ENUM, 0, 3, 0, N_DFD_VOICE, 0},
