@@ -17,8 +17,8 @@ export const T = {
     sndHead: '03 / DISEÑO DE SONIDO', memHead: '04 / MEMORIA', archTitle: 'EL<br><em>ARCHIVO.</em>', factory: 'ADN DE FÁBRICA', loadPreset: 'CARGAR PATRÓN DE FÁBRICA',
     yourName: 'NOMBRE DE TU PATRÓN', saveLocal: 'GUARDAR EN ESTE NAVEGADOR', recall: 'RECUPERAR PATRÓN GUARDADO', exportProject: '↓ DESCARGAR PROYECTO .JSON', importProject: '↑ IMPORTAR PROYECTO .JSON',
     activeNotes: 'NOTAS ACTIVAS', filterNow: 'FILTRO AHORA', free: 'Libre y de código abierto (GPL-3.0). Sin cuenta, sin suscripción, sin límites de exportación.',
-    fxHead: '05 / RACK DE EFECTOS', fxSub: 'SINCRONIZADO AL TEMPO · CADENA: CRUSH → RING → STUTTER → FILTRO DIN → MOD → COMP → DELAY → REVERB',
-    perfHead: '06 / EN VIVO', perfSub: 'MANTÉN LOS PADS · ARRASTRA EL XY · TOCA LAS TECLAS',
+    fxHead: '06 / RACK DE EFECTOS', fxSub: 'SINCRONIZADO AL TEMPO · CADENA: PUMP → CRUSH → RING → STUTTER → FILTRO DIN → MOD → COMP → DELAY → REVERB',
+    perfHead: '07 / EN VIVO', perfSub: 'MANTÉN LOS PADS · ARRASTRA EL XY · TOCA LAS TECLAS',
     padFill: 'FILL<small>mantener</small>', padStut: 'STUTTER<small>mantener</small>', padMute: 'MUTE<small>alternar</small>', padAcid: 'SQUELCH<small>mantener</small>',
     hwTag: 'UN PATRÓN. DOS MÁQUINAS. ACCIDENTES INFINITOS.', hwConn: '01 / CONEXIÓN', connect: 'CONECTAR USB MIDI', demo: 'DEMO: TB-3 SIMULADA (sin hardware)',
     hwNote: 'USB MIDI ≠ USB AUDIO. Graba el audio real de la TB-3 con tu interfaz o tu DAW.',
@@ -26,8 +26,9 @@ export const T = {
     sysText: 'Lee los bloques documentados del patch activo. Toda escritura te pregunta antes; restaurar siempre hace un respaldo antes de escribir.',
     identify: 'IDENTIFICAR TB-3', readPatch: 'LEER PATCH ACTIVO', savePatch: '↓ GUARDAR RESPALDO .JSON', loadPatch: '↑ CARGAR RESPALDO', restore: 'RESTAURAR PATCH ACTIVO (CONFIRMAR)',
     applyType: 'APLICAR TIPO DE FX', applyParam: 'APLICAR PARÁMETRO', restoreNote: 'Restaurar solo cambia el patch activo (de edición), nunca un slot de usuario guardado. Nada se escribe sin tu clic.',
-    hwEyebrow: '/ 007 · HARDWARE CONECTADO', midiCh: 'CANAL MIDI', motion: 'CONTROL DE MOVIMIENTO', param: 'PARÁMETRO', value: 'VALOR', monitorL: 'MONITOR DEL LINK / TIEMPO REAL',
+    hwEyebrow: '/ 008 · HARDWARE CONECTADO', midiCh: 'CANAL MIDI', motion: 'CONTROL DE MOVIMIENTO', param: 'PARÁMETRO', value: 'VALOR', monitorL: 'MONITOR DEL LINK / TIEMPO REAL',
     demoOn: '● TB-3 DEMO (SIMULADA)',
+    labEyebrow: '/ 005 · SECCIÓN ESPECIAL', labTag: 'ELECTRO HOUSE SUCIO · MUROS DE SIERRAS DISTORSIONADAS · ZAPS · BOMBEO', dirtyGo: '☠ GENERAR DIRTY', labRiffs: 'FAMILIAS DE RIFFS', labSounds: 'SONIDOS DIRTY',
     notAff: 'SOFTWARE INDEPENDIENTE · SIN AFILIACIÓN CON ROLAND', donate: '♥ DONAR',
   },
 };
@@ -38,9 +39,10 @@ export const PNAME_ES = {
   drive: 'Drive', drive2: 'Overdrive', tone: 'Tono', vcadecay: 'Caída de amp', crush_bits: 'Bits', crush_rate: 'Frecuencia', crush_mix: 'Mezcla', ring_freq: 'Frecuencia', ring_mix: 'Mezcla', stut_len: 'Largo',
   dyn_rate: 'Ciclo', dyn_depth: 'Profundidad', dyn_res: 'Resonancia', mod_type: 'Tipo', mod_rate: 'Velocidad', mod_depth: 'Profundidad', mod_fb: 'Realimentación', mod_mix: 'Mezcla',
   comp_thr: 'Umbral', comp_ratio: 'Ratio', comp_make: 'Ganancia', dly_time: 'Tiempo', dly_fb: 'Realimentación', dly_tone: 'Tono', dly_mix: 'Mezcla', dly_ping: 'Ping-pong',
+  voice: 'Voz', detune: 'Desafinación', pdrop: 'Caída de tono', pdec: 'Tiempo de caída', fold: 'Suciedad', pump: 'Profundidad',
   rev_size: 'Tamaño', rev_damp: 'Amortiguación', rev_mix: 'Mezcla', volume: 'Volumen', human: 'Humanizar',
 };
-export const PNAME_EN = {crush_bits: 'Bits', crush_rate: 'Rate', crush_mix: 'Mix', ring_freq: 'Frequency', ring_mix: 'Mix', stut_len: 'Length', dyn_rate: 'Cycle', dyn_depth: 'Depth', dyn_res: 'Resonance',
+export const PNAME_EN = {pump: 'Depth', crush_bits: 'Bits', crush_rate: 'Rate', crush_mix: 'Mix', ring_freq: 'Frequency', ring_mix: 'Mix', stut_len: 'Length', dyn_rate: 'Cycle', dyn_depth: 'Depth', dyn_res: 'Resonance',
   mod_type: 'Type', mod_rate: 'Rate', mod_depth: 'Depth', mod_fb: 'Feedback', mod_mix: 'Mix', comp_thr: 'Threshold', comp_ratio: 'Ratio', comp_make: 'Makeup', dly_time: 'Time', dly_fb: 'Feedback', dly_tone: 'Tone', dly_mix: 'Mix', dly_ping: 'Ping-pong', rev_size: 'Size', rev_damp: 'Damping', rev_mix: 'Mix'};
 
 let lang = 'en';

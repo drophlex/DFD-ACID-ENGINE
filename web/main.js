@@ -1,10 +1,10 @@
 // DFD ACID ENGINE · the page. Sound comes from the shared C++ engine (WebAssembly in an AudioWorklet).
-import {PRESETS, MODES, generate, mutate, parseNoteName, downloadBytes, dnaHash, sanitize, blankStep, condName, COND_LIST, clamp} from './pattern.js';
+import {PRESETS, MODES, STYLE_SOUND, SOUND_KEYS, DIRTY_SOUNDS, DIRTY_MODES, generate, mutate, parseNoteName, downloadBytes, dnaHash, sanitize, blankStep, condName, COND_LIST, clamp} from './pattern.js';
 import {LiveEngine, boot, ID, TABLE, render, eventsToMidi, wav24} from './engine.js';
 import {TB3Link} from './tb3-midi.js';
 import {applyLang, getLang, tr, PNAME_ES, PNAME_EN} from './i18n.js';
 
-const VERSION = '1.0.0';
+const VERSION = '1.1.0';
 const $ = id => document.getElementById(id);
 const eng = new LiveEngine();
 let params = [], pats = {A: [], B: []}, edit = 'A', sel = 0, patternName = PRESETS[0].name, running = false;
@@ -16,23 +16,24 @@ const steps = () => pats[edit];
 // ------------------------------------------------------------------ parameters
 const CHOICES = {
   stut_len: ['1/4', '1/8', '1/16', '1/32'], mod_type: ['CHORUS', 'FLANGER', 'PHASER'], dly_time: ['1/16', '1/8', '3/16', '1/4', '3/8', '1/2', '1/8T', '1/4D'],
-  oct: ['−2', '−1', '0', '+1', '+2'], quality: ['ECO 1×', 'HQ 2×', 'ULTRA 4×'],
+  oct: ['−2', '−1', '0', '+1', '+2'], voice: ['ACID', 'DIRTY', 'FIDGET'], quality: ['ECO 1×', 'HQ 2×', 'ULTRA 4×'],
 };
-const LOG = new Set(['cutoff', 'ring_freq', 'decay', 'vcadecay', 'glide', 'dyn_rate', 'mod_rate']);
-const EASY_SOUND = ['wave', 'cutoff', 'res', 'envmod', 'decay', 'accent', 'drive', 'sub', 'volume'];
-const EXPERT_SOUND = ['tune', 'oct', 'pw', 'noise', 'glide', 'drive2', 'tone', 'vcadecay', 'human'];
+const LOG = new Set(['pdec', 'cutoff', 'ring_freq', 'decay', 'vcadecay', 'glide', 'dyn_rate', 'mod_rate']);
+const EASY_SOUND = ['voice', 'wave', 'cutoff', 'res', 'envmod', 'decay', 'accent', 'drive', 'fold', 'sub', 'pdrop', 'volume'];
+const EXPERT_SOUND = ['detune', 'pdec', 'tune', 'oct', 'pw', 'noise', 'glide', 'drive2', 'tone', 'vcadecay', 'human'];
 const FX = [
   ['CRUSH', 'crush_on', ['crush_mix', 'crush_bits', 'crush_rate']], ['RING MOD', 'ring_on', ['ring_mix', 'ring_freq']], ['STUTTER', 'stut_on', ['stut_len']],
   ['DYN FILTER', 'dyn_on', ['dyn_depth', 'dyn_rate', 'dyn_res']], ['CHORUS · FLANGER · PHASER', 'mod_on', ['mod_mix', 'mod_type', 'mod_rate', 'mod_depth', 'mod_fb']],
-  ['COMPRESSOR', 'comp_on', ['comp_thr', 'comp_ratio', 'comp_make']], ['DELAY', 'dly_on', ['dly_mix', 'dly_time', 'dly_fb', 'dly_tone', 'dly_ping']], ['REVERB', 'rev_on', ['rev_mix', 'rev_size', 'rev_damp']],
+  ['SIDECHAIN PUMP', 'pump_on', ['pump']], ['COMPRESSOR', 'comp_on', ['comp_thr', 'comp_ratio', 'comp_make']], ['DELAY', 'dly_on', ['dly_mix', 'dly_time', 'dly_fb', 'dly_tone', 'dly_ping']], ['REVERB', 'rev_on', ['rev_mix', 'rev_size', 'rev_damp']],
 ];
 const P = id => TABLE[ID[id]];
 const pname = id => getLang() === 'es' ? (PNAME_ES[id] || P(id).id) : (PNAME_EN[id] || engName(id));
-const engName = id => ({tune: 'Tune', oct: 'Octave', wave: 'Saw ⇄ Square', pw: 'Pulse Width', sub: 'Sub', noise: 'Noise', cutoff: 'Cutoff', res: 'Resonance', envmod: 'Env Mod', decay: 'Decay', accent: 'Accent', glide: 'Slide Time', drive: 'Drive', drive2: 'Overdrive', tone: 'Tone', vcadecay: 'Amp Decay', volume: 'Volume', human: 'Humanize'}[id] || id);
+const engName = id => ({tune: 'Tune', oct: 'Octave', wave: 'Saw ⇄ Square', pw: 'Pulse Width', sub: 'Sub', noise: 'Noise', cutoff: 'Cutoff', res: 'Resonance', envmod: 'Env Mod', decay: 'Decay', accent: 'Accent', glide: 'Slide Time', drive: 'Drive', drive2: 'Overdrive', tone: 'Tone', vcadecay: 'Amp Decay', volume: 'Volume', human: 'Humanize', voice: 'Voice', detune: 'Detune', pdrop: 'Pitch Drop', pdec: 'Drop Time', fold: 'Filth', pump: 'Depth'}[id] || id);
 function fmt(id, v) {
   if (CHOICES[id]) return CHOICES[id][Math.round(v - P(id).lo)] ?? v;
   if (id === 'cutoff' || id === 'ring_freq') return v >= 1000 ? (v / 1000).toFixed(2) + ' kHz' : Math.round(v) + ' Hz';
-  if (['decay', 'vcadecay', 'glide'].includes(id)) return v < 1 ? Math.round(v * 1000) + ' ms' : v.toFixed(2) + ' s';
+  if (id === 'pdrop') return v < .05 ? 'OFF' : v.toFixed(1) + ' st';
+  if (['decay', 'vcadecay', 'glide', 'pdec'].includes(id)) return v < 1 ? Math.round(v * 1000) + ' ms' : v.toFixed(2) + ' s';
   if (['volume', 'comp_thr', 'comp_make'].includes(id)) return v.toFixed(1) + ' dB';
   if (id === 'tune') return (v > 0 ? '+' : '') + v.toFixed(2) + ' st';
   if (id === 'comp_ratio') return v.toFixed(1) + ':1';
@@ -97,8 +98,8 @@ function buildFX() {
     root.append(card);
   }
 }
-const syncAll = () => TABLE.forEach(p => syncCtl(p.id));
-function relabel() { document.querySelectorAll('[data-pn]').forEach(el => el.textContent = pname(el.dataset.pn).toUpperCase()); }
+const syncAll = () => { TABLE.forEach(p => syncCtl(p.id)); if (document.querySelector('#dirtyMacros .macro')) syncMacros(); };
+function relabel() { document.querySelectorAll('[data-pn]').forEach(el => el.textContent = pname(el.dataset.pn).toUpperCase()); document.querySelectorAll('#dirtyMacros .macro b').forEach((b, i) => b.textContent = getLang() === 'es' ? MACROS[i][1] : MACROS[i][0]); }
 
 // ------------------------------------------------------------------ pattern + grid
 function pushUndo() { undo.push(JSON.stringify(pats)); if (undo.length > 80) undo.shift(); redo.length = 0; }
@@ -187,6 +188,12 @@ function doGenerate(seed) {
   $('customName').value = patternName; commit(); inspector();
   log(tr('logGen', 'Pattern generated') + ' · ' + steps().length + ' steps · seed ' + $('seed').value);
 }
+function applyStyleSound(m) {
+  const snd = STYLE_SOUND[m]; if (!snd) return;
+  for (const k of SOUND_KEYS) if (ID[k] !== undefined) setP(k, P(k).def, {ui: false});
+  for (const [k, v] of Object.entries(snd)) setP(k, v, {ui: false});
+  syncAll(); log('Style sound: ' + MODES[m].name);
+}
 function loadPreset(p) {
   pushUndo();
   for (const id of ['mode', 'root', 'scale']) $(id).value = p[id];
@@ -196,6 +203,42 @@ function loadPreset(p) {
   const g = {mode: p.mode, root: p.root, scale: p.scale, length: 16, density: .77, chaos: .43, seed: p.seed};
   pats.A = generate(g); pats.B = mutate(generate({...g, seed: p.seed + 1}), .3, g);
   patternName = p.name; $('customName').value = p.name; syncAll(); commit(); inspector(); log('Loaded ' + p.name);
+}
+
+// ------------------------------------------------------------------ DIRTY LAB
+const MACROS = [
+  ['FILTH', 'SUCIEDAD', f => { setP('fold', f * .8); setP('drive', .3 + f * .7); setP('drive2', f * .85); setP('crush_on', f > .6 ? 1 : 0); setP('crush_mix', Math.max(0, f - .6) * 1.2); setP('crush_bits', 12 - f * 6); }, () => params[ID.drive2] / .85],
+  ['PUMP', 'BOMBEO', v => { setP('pump_on', v > .02 ? 1 : 0); setP('pump', v); }, () => params[ID.pump_on] > .5 ? params[ID.pump] : 0],
+  ['ZAP', 'ZAP', v => { setP('pdrop', v * 24); setP('pdec', .02 + v * .12); }, () => params[ID.pdrop] / 24],
+  ['WIDTH', 'ANCHO', v => setP('detune', v), () => params[ID.detune]],
+  ['SCREAM', 'GRITO', v => { setP('res', .2 + v * .75); setP('envmod', .3 + v * .65); }, () => (params[ID.res] - .2) / .75],
+  ['BITE', 'MORDIDA', v => setP('cutoff', 200 * Math.pow(30, v)), () => Math.log(params[ID.cutoff] / 200) / Math.log(30)],
+];
+function buildLab() {
+  const riffs = $('dirtyRiffs'), sounds = $('dirtySounds'), mac = $('dirtyMacros');
+  for (const m of DIRTY_MODES) { const b = document.createElement('button'); b.textContent = MODES[m].name; b.onclick = () => labGenerate(m); riffs.append(b); }
+  DIRTY_SOUNDS.forEach((d, i) => { const b = document.createElement('button'); b.textContent = d.name; b.onclick = () => labSound(i); sounds.append(b); });
+  MACROS.forEach(([en, es], i) => { const l = document.createElement('label'); l.className = 'macro'; l.innerHTML = '<b data-en="' + en + '">' + (getLang() === 'es' ? es : en) + '</b><input type="range" min="0" max="1000"><output></output>';
+    const r = l.querySelector('input'); r.oninput = () => { MACROS[i][2](+r.value / 1000); syncMacros(); }; mac.append(l); });
+  syncMacros();
+}
+function syncMacros() { document.querySelectorAll('#dirtyMacros .macro').forEach((l, i) => { const v = clamp(MACROS[i][3](), 0, 1); l.querySelector('input').value = Math.round(v * 1000); l.querySelector('output').textContent = Math.round(v * 100); }); }
+function labSound(i) {
+  const d = DIRTY_SOUNDS[i]; for (const k of SOUND_KEYS) if (ID[k] !== undefined) setP(k, P(k).def, {ui: false});
+  for (const [k, v] of Object.entries(d.snd)) setP(k, v, {ui: false});
+  syncAll(); syncMacros(); document.querySelectorAll('#dirtySounds button').forEach((b, j) => b.classList.toggle('on', j === i)); log('DIRTY SOUND · ' + d.name);
+}
+function labGenerate(m, seed = Math.floor(Math.random() * 99999)) {
+  pushUndo(); $('seed').value = seed;
+  const g = {...genOpts(), mode: m, seed, chaos: Math.min(+$('chaos').value / 100, .55), probability: 0, conditions: 0};
+  pats[edit] = generate({...g, keep: null}); pats[edit === 'A' ? 'B' : 'A'] = mutate(generate({...g, seed: seed + 1}), .25, g);
+  patternName = 'DFD / DIRTY ' + MODES[m].name + ' ' + String(seed).padStart(5, '0'); $('customName').value = patternName;
+  commit(); inspector(); document.querySelectorAll('#dirtyRiffs button').forEach((b, j) => b.classList.toggle('on', DIRTY_MODES[j] === m)); log('DIRTY RIFF · ' + MODES[m].name + ' · seed ' + seed + ' (B = a variation: ride the morph)');
+}
+function dirtyGo() {
+  labSound(Math.floor(Math.random() * DIRTY_SOUNDS.length));
+  labGenerate(DIRTY_MODES[Math.floor(Math.random() * DIRTY_MODES.length)]);
+  if (!running) start();
 }
 
 // ------------------------------------------------------------------ transport
@@ -368,13 +411,14 @@ async function init() {
   await boot();
   params = TABLE.map(p => p.def);
   $('ver').textContent = VERSION;
-  for (const [k, m] of Object.entries(MODES)) { const o = document.createElement('option'); o.value = k; o.textContent = m.name; $('mode').append(o); }
+  for (const [k, m] of Object.entries(MODES)) { if (m.lab) continue; const o = document.createElement('option'); o.value = k; o.textContent = m.name; $('mode').append(o); }
   for (const p of PRESETS) { const o = document.createElement('option'); o.value = p.name; o.textContent = p.name; $('preset').append(o); }
   for (let c = 1; c <= 16; c++) { const o = document.createElement('option'); o.value = c; o.textContent = 'CH ' + c; $('channel').append(o); }
-  buildSound(); buildFX(); buildKeys(); bindInspector(); bindXY(); fxTypes();
+  buildSound(); buildFX(); buildLab(); buildKeys(); bindInspector(); bindXY(); fxTypes();
   pats.A = Array.from({length: 16}, () => blankStep()); pats.B = structuredClone(pats.A);
   loadPreset(PRESETS[0]); undo.length = 0; loadLibrary(); readouts(); placeDot();
 
+  $('dirtyGo').onclick = dirtyGo;
   $('play').onclick = start; $('heroPlay').onclick = start; $('stop').onclick = stop;
   $('panic').onclick = () => { eng.panic(); link.allNotesOff?.(); held.clear(); log('PANIC: all notes off (engine + TB-3).'); };
   $('bpm').onchange = () => { const v = clamp(+$('bpm').value || 132, 30, 300); $('bpm').value = v; setP('bpm', v); };
@@ -388,6 +432,7 @@ async function init() {
   $('generate').onclick = () => doGenerate(Math.floor(Math.random() * 99999));
   $('dice').onclick = () => { $('seed').value = Math.floor(Math.random() * 99999); };
   $('seed').onchange = () => doGenerate();
+  $('mode').onchange = () => { applyStyleSound($('mode').value); doGenerate(Math.floor(Math.random() * 99999)); };
   $('mutate').onclick = () => { pushUndo(); pats[edit] = mutate(steps(), +$('mutation').value / 100, genOpts(), lock()); commit(); inspector(); log('Mutation ' + $('mutation').value + '%'); };
   $('randomize').onclick = () => { pushUndo(); pats[edit] = mutate(steps(), .95, genOpts(), lock()); commit(); };
   $('clear').onclick = () => { pushUndo(); pats[edit] = steps().map(s => ({...s, active: false, accent: false, slide: false, tie: false, ratchet: 1, prob: 100, cond: 0, micro: 0})); commit(); inspector(); };

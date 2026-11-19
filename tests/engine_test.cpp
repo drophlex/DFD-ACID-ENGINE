@@ -87,16 +87,30 @@ int main() {
         for (int k = 0; k < 4; k++) { int id = rand() % P_COUNT; const ParamInfo& p = PARAMS[id]; E.setParam(id, p.lo + (p.hi - p.lo) * (rand() / (float)RAND_MAX)); }
         int n = 1 + rand() % 256; E.process(L.data(), R.data(), n); E.nev = 0;
         for (int i = 0; i < n; i++) if (!std::isfinite(L[i]) || !std::isfinite(R[i]) || fabsf(L[i]) > 1.f || fabsf(R[i]) > 1.f) ok = false; } }
-    check("random automation of all 58 parameters, odd block sizes, 44.1/48/96 kHz: finite, within +-1", ok); }
+    check("random automation of every parameter, odd block sizes, 44.1/48/96 kHz: finite, within +-1", ok); }
   // ---- self-oscillation stays bounded; silence decays to silence
   { Engine& E = *fresh(); E.setParam(P_RES, 1); E.setParam(P_CUTOFF, 800); E.liveNote(36, 127); Run r = render(E, 48000); float pk = 0; for (float x : r.L) pk = fmaxf(pk, fabsf(x)); check("full resonance: bounded", pk <= 1.f && pk > 0.01f);
     E.liveOff(-1); E.setParam(P_DLY_ON, 0); E.setParam(P_REV_ON, 0); Run s = render(E, 48000 * 3); float tail = 0; for (int i = 48000 * 2; i < 48000 * 3; i++) tail = fmaxf(tail, fabsf(s.L[i])); check("note off: silent after 2 s (no stuck note)", tail < 1e-3f); }
+  // ---- DIRTY / FIDGET voices, pitch drop, pump
+  for (int v = 1; v <= 2; v++) { Engine& E = *fresh(); E.setParam(P_BPM, 128); allOn(E, 16, 36); E.setParam(P_VOICE, (float)v); E.setParam(P_DETUNE, 1); E.setParam(P_FOLD, 1); E.setParam(P_DRIVE, 1); E.setParam(P_DRIVE2, 1); E.setParam(P_RES, 0.9f); E.setParam(P_PDROP, 24);
+    E.play(); Run r = render(E, 48000 * 2); float pk = 0; bool fin = true; for (float x : r.L) { pk = fmaxf(pk, fabsf(x)); if (!std::isfinite(x)) fin = false; }
+    char m[96]; snprintf(m, sizeof m, "%s voice, everything at max: loud, finite, within +-1", v == 1 ? "DIRTY" : "FIDGET"); check(m, fin && pk > 0.1f && pk <= 1.f); }
+  { Engine& E = *fresh(); E.setParam(P_BPM, 120); E.setParam(P_VOICE, 1); E.setParam(P_PUMP_ON, 1); E.setParam(P_PUMP, 1); E.setParam(P_DLY_ON, 0); E.setParam(P_REV_ON, 0); E.setParam(P_VCADECAY, 6); E.setParam(P_COMP_ON, 0);
+    allOn(E, 16, 40); for (int i = 0; i < 16; i++) { E.pat[0].s[i].gate = 100; if (i) E.pat[0].s[i].flags = ST_ON | ST_TIE; }
+    E.play(); Run r = render(E, 96000 * 2);   // one beat = 24000 samples at 120 BPM
+    auto rms = [&](int a, int b) { double s2 = 0; for (int i = a; i < b; i++) s2 += r.L[i] * r.L[i]; return sqrt(s2 / (b - a)); };
+    const double early = rms(48000 + 600, 48000 + 3000), late = rms(48000 + 18000, 48000 + 23500);
+    char m[96]; snprintf(m, sizeof m, "pump: the beat ducks (start %.3f vs end %.3f rms)", early, late); check(m, early < late * 0.5); }
+  { Engine& E = *fresh(); E.setParam(P_PDROP, 12); E.setParam(P_PDEC, 0.05f); E.setParam(P_RES, 0); E.setParam(P_CUTOFF, 12000); E.setParam(P_ENVMOD, 0); E.setParam(P_DLY_ON, 0); E.setParam(P_COMP_ON, 0);
+    E.liveNote(45, 100); Run a = render(E, 4800); Run b = render(E, 48000);
+    auto zc = [](const Run& r, int from, int n) { int c = 0; for (int i = from + 1; i < from + n; i++) if ((r.L[i - 1] < 0) != (r.L[i] < 0)) c++; return c; };
+    char m[96]; snprintf(m, sizeof m, "pitch drop: starts an octave up and falls (%d vs %d crossings)", zc(a, 0, 2400), zc(b, 40000, 2400)); check(m, zc(a, 0, 2400) > zc(b, 40000, 2400) * 1.4); }
   // ---- CPU: one second of audio, every effect on, per quality
-  for (int q = 0; q < 3; q++) { Engine& E = *fresh(); allOn(E, 16); E.setParam(P_QUALITY, (float)q);
+  for (int q = 0; q < 3; q++) { Engine& E = *fresh(); allOn(E, 16); E.setParam(P_QUALITY, (float)q); E.setParam(P_VOICE, 1); E.setParam(P_PUMP_ON, 1); E.setParam(P_FOLD, 0.5f);
     for (int id : { P_CRUSH_ON, P_RING_ON, P_DYN_ON, P_MOD_ON, P_COMP_ON, P_DLY_ON, P_REV_ON }) E.setParam(id, 1);
     E.play(); std::vector<float> L(128), R(128); auto t0 = std::chrono::high_resolution_clock::now(); for (int b = 0; b < 48000 / 128 * 4; b++) { E.process(L.data(), R.data(), 128); E.nev = 0; }
     double ms = std::chrono::duration<double, std::milli>(std::chrono::high_resolution_clock::now() - t0).count() / 4;
-    char m[96]; snprintf(m, sizeof m, "CPU at %dx, every effect on: %.1f ms per second of audio (%.2f %% of one core)", 1 << q, ms, ms / 10); check(m, ms < 120); }
+    char m[96]; snprintf(m, sizeof m, "CPU at %dx, DIRTY + all FX: %.1f ms per second of audio (%.2f %% of one core)", 1 << q, ms, ms / 10); check(m, ms < 120); }
   printf(fails ? "ENGINE: %d of %d FAILED\n" : "engine: all %d ok\n", fails ? fails : passes, fails + passes);
   return fails ? 1 : 0;
 }

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0 · 2026-11-18 · DIRTY
+
+- **Two new voices** in the engine: **DIRTY** (a wall of seven detuned saws) and **FIDGET** (two hard-detuned oscillators plus one an octave up),
+  with **pitch drop** per note (the electro "zap"), **FILTH** wavefolding and a tempo-locked **sidechain PUMP**.
+- **DIRTY LAB**, a special section for filthy electro house: one-button **☠ DIRTY GENERATE**, 6 riff families (octave pump, zap bounce,
+  grind 16ths, call & response, stab gate, drop ride), 9 original dirty sounds and 6 big macros (FILTH · PUMP · ZAP · WIDTH · SCREAM · BITE).
+- Two new styles: **ELECTRO HOUSE / DIRTY** and **BLOGHOUSE / FIDGET**. Every style now brings its own sound when you pick it.
+- Generator keeps notes in key at the edges of the range (folds octaves instead of clamping). 2 new factory patterns.
+
 ## 1.0.0 · 2026-11-18 · web
 
 - **New engine** `engine/dfd_acid.h`: one header-only C++17 file shared by the web (WebAssembly), the plugin and the FM-1 work.

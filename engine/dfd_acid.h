@@ -83,6 +83,7 @@ enum P : int {
   P_REV_ON, P_REV_SIZE, P_REV_DAMP, P_REV_MIX,
   P_VOLUME, P_SWING, P_BPM, P_QUALITY, P_MORPH, P_SEED, P_HUMAN,     // dB, 0..0.75, internal BPM, 0 1x 1 2x 2 4x, A/B morph 0..1, seed, humanize 0..1
   P_TRANSPOSE, P_FILL, P_MUTE, P_AUDIO,                               // semitones -24..24, fill held, mute (notes + MIDI), audio out (0 = MIDI only)
+  P_VOICE, P_DETUNE, P_PDROP, P_PDEC, P_FOLD, P_PUMP_ON, P_PUMP,      // voice 0 ACID 1 DIRTY 2 FIDGET; stack detune; pitch drop st, its decay s; wavefold; sidechain pump
   P_COUNT
 };
 struct ParamInfo { const char* id; const char* name; float lo, hi, def; int steps; };   // steps: 0 continuous, n = n choices
@@ -100,6 +101,7 @@ static constexpr ParamInfo PARAMS[P_COUNT] = {
   {"rev_on","Reverb",0,1,0,2},{"rev_size","Reverb Size",0,1,0.6f,0},{"rev_damp","Reverb Damp",0,1,0.5f,0},{"rev_mix","Reverb Mix",0,1,0.18f,0},
   {"volume","Volume",-36,6,-6,0},{"swing","Swing",0,0.75f,0,0},{"bpm","Tempo",30,300,132,0},{"quality","Quality",0,2,1,3},{"morph","A/B Morph",0,1,0,0},{"seed","Seed",0,65535,1234,0},{"human","Humanize",0,1,0,0},
   {"transpose","Transpose",-24,24,0,0},{"fill","Fill",0,1,0,2},{"mute","Mute",0,1,0,2},{"audio","Audio Out",0,1,1,2},
+  {"voice","Voice",0,2,0,3},{"detune","Detune",0,1,0.35f,0},{"pdrop","Pitch Drop",0,24,0,0},{"pdec","Drop Time",0.01f,0.5f,0.08f,0},{"fold","Filth",0,1,0,0},{"pump_on","Pump",0,1,0,2},{"pump","Pump Depth",0,1,0.6f,0},
 };
 
 // ------------------------------------------------------------------ building blocks
@@ -149,6 +151,8 @@ struct Engine {
   long long loopCount = 0;
   int curStep = -1;                     // for the page's playhead
   // voice
+  double pumpFree = 0; float pumpG = 1;
+  float stk[7] = {0.f, 0.13f, 0.29f, 0.41f, 0.57f, 0.71f, 0.87f}; float pEnv = 0;
   float phase = 0, subPhase = 0, freq = 110, freqTarget = 110, logF = 0, logT = 0;
   float meg = 0, vca = 0, vcaTarget = 0, accCap = 0, accNow = 0, velNow = 1;
   bool gateOn = false; double gateOff = -1; int noteNow = -1, hwNote = -1;
@@ -238,7 +242,7 @@ struct Engine {
     const int n = clampi(s.note + (int)params[P_TRANSPOSE] + (int)params[P_OCT] * 12, 0, 127);
     const bool acc = (s.flags & ST_ACC) != 0;
     logT = 8.78135971f + ((float)n + params[P_TUNE] - 69.f) / 12.f; freqTarget = exp2f_(logT);   // log2(440) + semitones / 12
-    if (!slideIn || !gateOn) { logF = logT; freq = freqTarget; meg = 1; vca = vca * 0.25f; }   // a new note: the filter envelope restarts
+    if (!slideIn || !gateOn) { logF = logT; freq = freqTarget; meg = 1; vca = vca * 0.25f; pEnv = 1; }   // a new note: the filter envelope restarts
     accNow = acc ? 1.f : 0.f; velNow = s.vel / 127.f;
     if (acc) accCap = accCap + (1.f - accCap) * 0.55f;                                       // consecutive accents climb, like the original's capacitor
     gateOn = true; vcaTarget = 1;
@@ -280,15 +284,33 @@ struct Engine {
   inline float voiceSample(float sro) {
     // pitch: an exponential glide in octaves (a constant-time slide, as on the original)
     const float gl = params[P_GLIDE]; logF += (logT - logF) * (1.f - expf_(-1.f / (gl * sro * 0.35f + 1.f)));
-    freq = exp2f_(logF);
+    // pitch drop: each new note starts up to two octaves high and falls (the fidget / electro "zap")
+    pEnv *= expf_(-1.f / (params[P_PDEC] * sro));
+    freq = exp2f_(logF + params[P_PDROP] * pEnv * (1.f / 12.f));
     const float dt = clampf(freq / sro, 0.f, 0.45f);
     phase += dt; if (phase >= 1) phase -= 1;
     subPhase += dt * 0.5f; if (subPhase >= 1) subPhase -= 1;
-    float saw = 2 * phase - 1 - polyblep(phase, dt);
-    const float pw = params[P_PW]; float q = phase < pw ? 1.f : -1.f; q += polyblep(phase, dt); { float t = phase - pw; if (t < 0) t += 1; q -= polyblep(t, dt); }
+    const float pw = params[P_PW], w = params[P_WAVE];
+    auto osc = [&](float ph, float d) { float sa = 2 * ph - 1 - polyblep(ph, d); float q = ph < pw ? 1.f : -1.f; q += polyblep(ph, d); float t = ph - pw; if (t < 0) t += 1; q -= polyblep(t, d); return sa * (1 - w) + q * w; };
     float sq = subPhase < 0.5f ? 1.f : -1.f; sq += polyblep(subPhase, dt * 0.5f); { float t = subPhase - 0.5f; if (t < 0) t += 1; sq -= polyblep(t, dt * 0.5f); }
-    const float w = params[P_WAVE];
-    float x = saw * (1 - w) + q * w + sq * params[P_SUB] * 0.7f;
+    const int vmode = (int)params[P_VOICE];
+    float x;
+    if (vmode == 0) x = osc(phase, dt);
+    else {
+      // DIRTY: seven detuned oscillators (a wall of saws). FIDGET: two hard-detuned ones and one an octave up
+      static const float spread7[7] = {0.f, -0.11f, 0.11f, -0.32f, 0.32f, -0.6f, 0.6f}, spread3[3] = {-0.5f, 0.5f, 12.f};
+      const float det = params[P_DETUNE];
+      const int n = vmode == 1 ? 7 : 3; float sum = 0;
+      for (int j = 0; j < n; j++) {
+        const float semi = vmode == 1 ? spread7[j] * det : (j < 2 ? spread3[j] * det : 12.f);
+        const float dj = clampf(dt * exp2f_(semi * (1.f / 12.f)), 0.f, 0.45f);
+        stk[j] += dj; if (stk[j] >= 1) stk[j] -= 1;
+        sum += osc(stk[j], dj) * (vmode == 2 && j == 2 ? 0.6f : 1.f);
+      }
+      x = sum * (vmode == 1 ? 0.42f : 0.62f);
+    }
+    x += sq * params[P_SUB] * 0.7f;
+    if (params[P_FOLD] > 0.001f) { const float f = params[P_FOLD]; const float y = sinf_(clampf(x * (1.f + f * 6.f), -8.f, 8.f) * PI * 0.5f); x += (y - x) * f; }
     if (params[P_NOISE] > 0.001f) { float wn = noise.bi(); pinkB[0] = 0.997f * pinkB[0] + 0.029591f * wn; pinkB[1] = 0.985f * pinkB[1] + 0.032534f * wn; pinkB[2] = 0.95f * pinkB[2] + 0.048056f * wn; x += (pinkB[0] + pinkB[1] + pinkB[2] + wn * 0.1848f) * params[P_NOISE] * 1.5f; }
     x *= 0.5f * (1.f + params[P_DRIVE] * 5.f);
     // filter: cutoff from the knob, the decaying envelope (shorter and stronger on an accent) and the accent "sweep"
@@ -418,6 +440,13 @@ struct Engine {
       if (d2 > 0.001f) { const float g = 1.f + d2 * 14.f; x = tanhf_(x * g + 0.15f * d2) - tanhf_(0.15f * d2); x /= (1.f + d2 * 1.5f) * 0.5f + 0.5f; }
       { const float t = params[P_TONE]; if (t != 0) { toneLp += (x - toneLp) * 0.18f; x = t > 0 ? x + (x - toneLp) * t * 1.5f : x + (toneLp - x) * (-t); } }
       hp += (x - hp) * onepole(18.f, sr); x -= hp;
+      // sidechain pump: ducks on every beat and breathes back, locked to the sequencer (free-running when stopped)
+      if (params[P_PUMP_ON] > 0.5f) {
+        const double beat = playing ? pos * 0.25 : (pumpFree += 1.0 / (stepLen * 4.0));
+        const float t = (float)(beat - (double)(long long)beat), u = 1.f - t;
+        const float duck = params[P_PUMP] * (t < 0.012f ? t / 0.012f : u * u * u) ;
+        pumpG += ((1.f - duck) - pumpG) * 0.25f; x *= pumpG;
+      }
       float L = x, R = x;
       fx(L, R, stepLen);
       L *= vol; R *= vol;

@@ -5,7 +5,7 @@ import {boot, ID, TABLE, render, eventsToMidi, wav24, patternBytes} from '../web
 import {sysexDT1, sysexRQ1, validateRolandDT1, checksum} from '../web/tb3-midi.js';
 
 test('generator is seeded and stable, every style', () => {
-  for (const mode of ['acid', 'techno', 'filter', 'bigbeat', 'rave', 'braindance', 'electro', 'hypnotic', 'broken', 'funk']) {
+  for (const mode of ['acid', 'techno', 'filter', 'bigbeat', 'rave', 'braindance', 'electro', 'hypnotic', 'dirty', 'fidget', 'broken', 'funk']) {
     const a = generate({length: 64, seed: 4242, mode, probability: 1, conditions: 1}), b = generate({length: 64, seed: 4242, mode, probability: 1, conditions: 1});
     assert.deepEqual(a, b); assert.equal(a.length, 64); assert.ok(a.some(x => x.active), mode);
     for (const s of a) { assert.ok(s.note >= 24 && s.note <= 96); assert.ok(s.gate >= 5 && s.gate <= 100); assert.ok(s.prob >= 0 && s.prob <= 100); }
@@ -33,7 +33,7 @@ test('pattern bytes match the engine Step layout', () => {
   assert.deepEqual([...b.slice(4)], [40, 1 | 2 | 8, 70, 90, 3, 60, 17, 246]);
 });
 test('engine boots with its parameter table', async () => {
-  await boot(); assert.ok(TABLE.length >= 60); for (const k of ['cutoff', 'res', 'bpm', 'morph', 'audio', 'dly_mix']) assert.ok(ID[k] >= 0, k);
+  await boot(); assert.ok(TABLE.length >= 67); for (const k of ['cutoff', 'res', 'bpm', 'morph', 'audio', 'dly_mix', 'voice', 'pump', 'fold', 'pdrop']) assert.ok(ID[k] >= 0, k);
 });
 const params = () => TABLE.map(p => p.def);
 test('render: sound, sample-exact 16ths, MIDI = what you hear', async () => {
