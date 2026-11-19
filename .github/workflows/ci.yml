@@ -19,7 +19,7 @@ jobs:
           pip install playwright && python3 -m playwright install --with-deps chromium
           python3 -m http.server 8811 & sleep 2
           SHOTS=shots python3 tests/e2e/smoke.py http://localhost:8811/web/
-          cp DFD_ACID_ENGINE_OFFLINE.html plugin/ui/index.html && python3 tests/e2e/plugin_page.py http://localhost:8811/plugin/ui/index.html
+          mkdir -p plugin/ui && cp DFD_ACID_ENGINE_OFFLINE.html plugin/ui/index.html && python3 tests/e2e/plugin_page.py http://localhost:8811/plugin/ui/index.html
       - uses: actions/upload-artifact@v4
         if: always()
         with:
