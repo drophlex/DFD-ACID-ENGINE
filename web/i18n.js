@@ -6,7 +6,7 @@ export const T = {
     eyebrow: '/ 001 · EL SISTEMA DE GENERACIÓN ÁCIDA', tagline: 'SECUENCIADOR / SINTETIZADOR / LABORATORIO DE PATRONES / GEMELO DE HARDWARE',
     heroPlay: '▶ ENCENDER LA MÁQUINA', heroHint: 'Usa audífonos. Espacio = play / stop · teclas Z–M = tocar notas',
     play: 'PLAY', stop: '■ STOP', tempo: 'TEMPO', steps: 'PASOS', swing: 'SWING', editing: 'EDITAR', quality: 'CALIDAD',
-    exportMidi: '↓ MIDI', dragMidi: '⇲ ARRASTRA MIDI', exportWav: '↓ WAV', exportStems: '↓ STEMS', panic: 'PÁNICO',
+    exportMidi: '↓ MIDI', dragMidi: '⇲ ARRASTRA MIDI', dragWav: '⇲ ARRASTRA WAV', exportWav: '↓ WAV', exportStems: '↓ STEMS', panic: 'PÁNICO',
     genHead: '01 / GENERADOR', genTitle: 'CAOS<br><em>HUMANO.</em>', archetype: 'ESTILO', key: 'TONO', scale: 'ESCALA', density: 'DENSIDAD', chaos: 'CAOS', mutation: 'MUTACIÓN',
     gProb: 'PROBABILIDAD', gCond: 'CONDICIONES', gGate: 'VARIACIÓN DE GATE', poly: 'POLIRRITMO', transpose: 'TRANSPONER',
     dnaLock: 'BLOQUEO DE ADN', lNotes: 'NOTAS', lRhythm: 'RITMO', lAcc: 'ACENTOS', lSlide: 'SLIDES',

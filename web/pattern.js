@@ -208,3 +208,31 @@ export function sanitize(st, legacy = false) {
 export function parseNoteName(note) { const n = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']; return n[(note + 120) % 12] + (Math.floor(note / 12) - 1); }
 export function downloadBytes(bytes, name, mime) { const url = URL.createObjectURL(new Blob([bytes], {type: mime})); const a = document.createElement('a'); a.href = url; a.download = name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000); }
 export function dnaHash(steps) { let h = 0x811c9dc5; for (const s of steps) { h ^= s.note + (s.active ? 211 : 0) + (s.accent ? 37 : 0) + (s.slide ? 97 : 0) + (s.tie ? 13 : 0) + (s.ratchet || 1) * 7 + s.prob + s.cond * 3; h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(16).padStart(8, '0').toUpperCase(); }
+
+// a MIDI clip (SMF 0/1) as acid steps: one note per sixteenth (the loudest that starts there), accent from the velocity,
+// slide where a note overlaps the next one (legato), tie where the same note simply continues
+export function midiToSteps(buf, length = 16) {
+  const b = new Uint8Array(buf); let p = 0; const u32 = () => (b[p++] << 24 | b[p++] << 16 | b[p++] << 8 | b[p++]) >>> 0, u16 = () => b[p++] << 8 | b[p++];
+  if (String.fromCharCode(...b.subarray(0, 4)) !== 'MThd') throw Error('not a MIDI file');
+  p = 4; const hl = u32(); u16(); const ntr = u16(), div = u16() || 96; p = 8 + hl;
+  const on = {}, notes = [];
+  for (let t = 0; t < ntr && p < b.length; t++) {
+    p += 4; const len = u32(), end = p + len; let tick = 0, run = 0;
+    const vlq = () => { let v = 0, c; do { c = b[p++]; v = (v << 7) | (c & 127); } while (c & 128 && p < end); return v; };
+    while (p < end) { tick += vlq(); let st = b[p]; if (st < 0x80) st = run; else p++;
+      if (st === 0xff) { p++; const l = vlq(); p += l; continue; } if (st === 0xf0 || st === 0xf7) { const l = vlq(); p += l; continue; }
+      run = st; const hi = st & 0xf0, d1 = b[p++], d2 = (hi === 0xc0 || hi === 0xd0) ? 0 : b[p++];
+      if (hi === 0x90 && d2 > 0) on[d1] = [tick, d2];
+      else if ((hi === 0x80 || hi === 0x90) && on[d1]) { notes.push({at: on[d1][0] / div * 4, end: tick / div * 4, note: d1, vel: on[d1][1]}); delete on[d1]; } }
+    p = end;
+  }
+  if (!notes.length) throw Error('no notes in the clip');
+  const steps = Array.from({length}, () => blankStep());
+  for (const n of notes.sort((a, c) => a.at - c.at)) { const i = Math.round(n.at); if (i >= length) continue; const s = steps[i];
+    if (s.active && s.vel >= n.vel) continue;
+    Object.assign(s, {note: n.note, active: true, vel: n.vel, accent: n.vel >= 100, gate: Math.max(10, Math.min(100, Math.round((n.end - n.at) * 100))), _end: n.end}); }
+  for (let i = 0; i < length; i++) { const s = steps[i], nx = steps[(i + 1) % length]; if (!s.active) continue;
+    if (s._end > i + 1.05) { if (nx.active && nx.note !== s.note) s.slide = true; else if (!nx.active) { Object.assign(nx, {note: s.note, active: true, tie: true, vel: s.vel, _end: s._end}); } } }
+  steps.forEach(s => delete s._end);
+  return steps;
+}

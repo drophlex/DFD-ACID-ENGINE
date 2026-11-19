@@ -54,7 +54,7 @@ private:
   struct Live { int t, note, vel; }; std::vector<Live> live, liveAudio;   // keys and pads played on the page
   std::atomic<int> reqPlay { 0 };                   // 1 play, 2 stop, 3 panic
   std::atomic<int> midiCh { 0 };
-  bool hostWasPlaying = false;
+  bool hostWasPlaying = false, ownPlay = false;
 
   void setFromPage(int id, float v);
   static juce::String b64(const PatBuf& p);

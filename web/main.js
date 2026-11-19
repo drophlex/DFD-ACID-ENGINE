@@ -1,5 +1,5 @@
 // DFD ACID ENGINE · the page. Sound comes from the shared C++ engine (WebAssembly in an AudioWorklet).
-import {PRESETS, MODES, STYLE_SOUND, SOUND_KEYS, DIRTY_SOUNDS, DIRTY_MODES, generate, mutate, parseNoteName, downloadBytes, dnaHash, sanitize, blankStep, condName, COND_LIST, clamp} from './pattern.js';
+import {PRESETS, MODES, STYLE_SOUND, SOUND_KEYS, DIRTY_SOUNDS, DIRTY_MODES, generate, mutate, parseNoteName, downloadBytes, dnaHash, sanitize, blankStep, condName, COND_LIST, clamp, midiToSteps} from './pattern.js';
 import {LiveEngine, NativeEngine, PLUGIN, invoke, toB64, fromB64, bytesToSteps, boot, ID, TABLE, render, eventsToMidi, wav24} from './engine.js';
 import {TB3Link} from './tb3-midi.js';
 import {applyLang, getLang, tr, PNAME_ES, PNAME_EN} from './i18n.js';
@@ -466,6 +466,15 @@ async function init() {
   $('exportStems').onclick = () => busy($('exportStems'), exportStems);
   $('dragMidi').ondragstart = e => { if (!midiURL) { e.preventDefault(); return; } e.dataTransfer.setData('DownloadURL', 'audio/midi:' + fileBase() + '.mid:' + midiURL); e.dataTransfer.setData('text/uri-list', midiURL); };
   $('dragMidi').onclick = () => busy($('exportMidi'), exportMidi);
+  // the loop as audio: two loops are rendered and the second is kept, so the tails of the end ring into the start
+  if ($('dragWav')) { const loopWav = async () => { const r = await renderNow({[ID.audio]: 1}, 2, 0); const h = Math.floor(r.L.length / 2); return wav24(r.L.slice(h), r.R.slice(h), r.sr); };
+    if (PLUGIN) $('dragWav').onpointerdown = async e => { e.preventDefault(); const b = await loopWav(); invoke('dragMidi', fileBase() + '.wav', toB64(b)); };
+    else $('dragWav').onclick = async () => save(await loopWav(), fileBase() + '-loop.wav', 'audio/wav'); }
+  // a MIDI clip dropped on the page (from the Finder or the DAW) becomes the pattern you are editing
+  addEventListener('dragover', e => { if ([...(e.dataTransfer.items || [])].some(i => i.kind === 'file')) { e.preventDefault(); document.body.classList.add('filedrop'); } });
+  addEventListener('dragleave', e => { if (!e.relatedTarget) document.body.classList.remove('filedrop'); });
+  addEventListener('drop', async e => { const f = [...(e.dataTransfer.files || [])].find(x => /\.midi?$/i.test(x.name)); document.body.classList.remove('filedrop'); if (!f) return; e.preventDefault();
+    try { pushUndo(); pats[edit] = midiToSteps(await f.arrayBuffer(), steps().length).map(x => sanitize(x)); commit(); log('MIDI clip imported into pattern ' + edit + ': ' + f.name); } catch (err) { log('MIDI: ' + err.message); } });
   if (PLUGIN) { $('dragMidi').draggable = false; $('dragMidi').onclick = null; $('dragMidi').onpointerdown = async e => { e.preventDefault(); const b = await cacheMidi(); if (b) invoke('dragMidi', fileBase() + '.mid', toB64(b)); }; }
   $('savePattern').onclick = saveLocal;
   $('loadSaved').onclick = () => { const k = $('savedPatterns').value; if (!k) return; try { loadProject(readLib()[k]); log('Recalled ' + k); } catch (e) { log('Cannot load: ' + e.message); } };

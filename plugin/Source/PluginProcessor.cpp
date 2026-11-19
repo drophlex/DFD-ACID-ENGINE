@@ -58,13 +58,15 @@ void DfdProcessor::processBlock(juce::AudioBuffer<float>& buf, juce::MidiBuffer&
   { const juce::SpinLock::ScopedTryLockType tl(liveLock); if (tl.isLocked()) { liveAudio.swap(live); live.clear(); } }
   for (auto& l : liveAudio) { if (l.t == 1) E.liveNote(l.note, l.vel); else E.liveOff(l.note); }
   liveAudio.clear();
-  if (const int r = reqPlay.exchange(0)) { if (r == 1) E.play(); else if (r == 2) E.stop(); else E.releaseAll(); }
+  if (const int r = reqPlay.exchange(0)) { if (r == 1) { E.play(); ownPlay = true; } else if (r == 2) { E.stop(); ownPlay = false; } else E.releaseAll(); }
   // the DAW's transport: when it plays, the engine follows its tempo and its bar
   bool hpl = false; double ppq = 0, bpm = 0;
   if (auto* ph = getPlayHead()) if (auto pos = ph->getPosition()) { hpl = pos->getIsPlaying(); if (auto b = pos->getBpm()) bpm = *b; if (auto q = pos->getPpqPosition()) ppq = *q; }
-  if (bpm > 1 && hpl) E.setParam(P_BPM, (float)bpm);
+  // like XO: the engine's own PLAY and STOP are independent of the DAW and it always runs at the DAW's tempo; the DAW's play
+  // starts it on its bar, the DAW's stop stops it only if the DAW started it
+  if (bpm > 1) E.setParam(P_BPM, (float)bpm);
   if (hpl) E.hostPosition(ppq, true);
-  else if (hostWasPlaying) { E.hostPosition(0, false); applied[P_BPM] = -1; }   // back to the plug-in's own tempo
+  else if (hostWasPlaying) { if (ownPlay) E.hostSync = false; else E.hostPosition(0, false); }
   hostWasPlaying = hpl;
   // MIDI in from the DAW plays the voice (a keyboard, a clip)
   juce::MidiBuffer outMidi;

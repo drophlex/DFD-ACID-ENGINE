@@ -65,3 +65,5 @@ footer a{color:inherit}footer a:hover{color:var(--acid)}
 @media(max-width:1000px){.dirty-body{grid-template-columns:1fr}.dirty-btns{grid-template-columns:repeat(2,minmax(0,1fr))}}
 body.plugin .hardware,body.plugin .hero,body.plugin #langEN~x{display:none}body.plugin .mast{min-height:60px}
 .lab-jump{color:var(--orange);border-color:var(--orange)}.lab-jump:hover{background:var(--orange)!important;color:#0b0b0d!important}
+
+body.filedrop{outline:3px dashed #d8ff3c;outline-offset:-6px}
