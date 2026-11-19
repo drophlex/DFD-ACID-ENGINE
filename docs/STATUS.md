@@ -11,4 +11,4 @@ Updated 2026-11-18.
 | VST3 / AU | 🛠 in development | — (not built yet on the new engine) |
 | FM-1 firmware | 🛠 in development | — (will not be published before a test on the owner's FM-1, with a backup and a way back) |
 
-Pending: TB-3 named FX parameters per type, plugin build + pluginval / auval + CI, FM-1 port, PDF manuals (web, plugin, FM-1; English and Spanish).
+Pending: TB-3 named FX parameters per type, plugin build + pluginval / auval + CI, FM-1 port, plugin and FM-1 manuals (the web manual is done).

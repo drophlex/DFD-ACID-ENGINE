@@ -13,13 +13,14 @@ Acid house · acid techno · filter house · big beat · rave · braindance · e
 </p>
 <p align="center">
 <a href="https://drophlex.github.io/DFD-ACID-ENGINE/"><b>🌐 Website</b></a> ·
+<a href="manual/DFD-ACID-ENGINE-Web-Manual-EN.pdf"><b>📗 Manual (English)</b></a> · <a href="manual/DFD-ACID-ENGINE-Web-Manual-ES.pdf"><b>📕 Manual (Español)</b></a> · <a href="manual/DFD-ACID-ENGINE-Web-Manual-EN-ES.pdf"><b>English + Español</b></a> ·
 <a href="CHANGELOG.md"><b>📝 Changelog</b></a> ·
 <a href="docs/STATUS.md"><b>📋 Status</b></a> ·
 <a href="https://www.paypal.com/donate/?business=drophlex%40gmail.com&currency_code=MXN"><b>♥ Donate</b></a> ·
 <a href="#español"><b>Español</b></a>
 </p>
 
-Everything comes **in English**, with a button to switch to **Spanish**: the web (**ES**, top right) and the website (**ES**, top right). The manuals come in English and Spanish.
+Everything comes **in English**, with a button to switch to **Spanish**: the web (**ES**, top right) and the website (**ES**, top right). The **manual** (17 pages: 5-minute start, every panel, Ableton Live, TB-3, troubleshooting, recipes) comes in English, Spanish, or both.
 
 ---
 
@@ -127,6 +128,8 @@ Todo viene **en inglés** con un botón para pasarlo a **español**: la web (**E
 5. **⇲ ARRASTRA MIDI** a Ableton, o **↓ WAV**. `Espacio` = play / stop.
 
 **Con una TB-3:** cable USB de **datos**, **Chrome** o **Edge**, **CONECTAR USB MIDI**, y **TWIN LINK = TWIN**. ¿Sin TB-3? Marca **DEMO**. USB MIDI no es audio USB: graba el sonido de la TB-3 con tu interfaz o tu DAW.
+
+**Manual:** [español](manual/DFD-ACID-ENGINE-Web-Manual-ES.pdf) · [inglés](manual/DFD-ACID-ENGINE-Web-Manual-EN.pdf) · [los dos](manual/DFD-ACID-ENGINE-Web-Manual-EN-ES.pdf), 17 páginas: inicio en 5 minutos, cada panel, Ableton Live, TB-3, problemas y recetas.
 
 **Plugin y FM-1:** en desarrollo sobre el mismo motor. Se publican aquí solo cuando estén compilados, validados y probados en hardware real.
 

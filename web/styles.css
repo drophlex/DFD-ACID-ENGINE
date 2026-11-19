@@ -48,3 +48,4 @@ footer a{color:inherit}footer a:hover{color:var(--acid)}
 @media(max-width:760px){.fx-cards{grid-template-columns:1fr}.perf-body{grid-template-columns:1fr}.mast{flex-wrap:wrap}.mast-right{display:flex;flex-wrap:wrap;gap:8px}.mast-right #clock,.mast-right .online{display:none}.insp-grid{grid-template-columns:1fr 1fr}.pads{grid-template-columns:repeat(4,1fr)}}
 
 .donate{background:var(--orange);color:var(--ink);text-decoration:none;padding:8px 12px;font-weight:850;letter-spacing:.08em}.donate:hover{background:#ff9472}
+.hardware .subtle{color:#16191a!important;border-color:#16191a!important}.hardware .subtle:disabled{opacity:.35}.hardware .demo{color:#2b3320;font-weight:700}

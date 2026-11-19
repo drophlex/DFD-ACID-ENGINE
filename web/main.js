@@ -361,7 +361,7 @@ function frame() {
 // ------------------------------------------------------------------ wiring
 function readouts() { for (const [id, out, u] of [['density', 'densityOut', '%'], ['chaos', 'chaosOut', '%'], ['mutation', 'mutationOut', '%'], ['swing', 'swingOut', '%'], ['gProb', 'gProbOut', '%'], ['gCond', 'gCondOut', '%'], ['gGate', 'gGateOut', '%'], ['morph', 'morphOut', '%']]) $(out).textContent = $(id).value + u; }
 function setLayer(x) { document.body.classList.toggle('expert', x); document.body.classList.toggle('easy', !x); $('layerExpert').classList.toggle('on', x); $('layerEasy').classList.toggle('on', !x); try { localStorage.setItem('dfd-acid-layer', x ? 'expert' : 'easy'); } catch {} }
-function setLangUI(l) { applyLang(l); $('langEN').classList.toggle('on', l !== 'es'); $('langES').classList.toggle('on', l === 'es'); relabel(); $('engineState').querySelector('b').textContent = running ? tr('engineOn', 'PLAYING') : tr('engineIdle', 'ENGINE READY'); }
+function setLangUI(l) { applyLang(l); const ml = $('manLink'); if (ml) ml.href = '../manual/DFD-ACID-ENGINE-Web-Manual-' + (l === 'es' ? 'ES' : 'EN') + '.pdf'; $('langEN').classList.toggle('on', l !== 'es'); $('langES').classList.toggle('on', l === 'es'); relabel(); $('engineState').querySelector('b').textContent = running ? tr('engineOn', 'PLAYING') : tr('engineIdle', 'ENGINE READY'); }
 function setEdit(k) { edit = k; $('editA').classList.toggle('on', k === 'A'); $('editB').classList.toggle('on', k === 'B'); grid(); inspector(); }
 
 async function init() {
@@ -408,7 +408,7 @@ async function init() {
 
   // hardware
   $('connect').onclick = async () => { try { const st = await link.connect({sysex: true}); $('midiStatus').textContent = st.output ? '● ' + st.output.toUpperCase() : '● MIDI OK / NO OUTPUT'; log('MIDI ' + (st.sysex ? 'WITH' : 'WITHOUT') + ' SysEx'); } catch (e) { log('MIDI connection failed: ' + e.message); } };
-  $('demo').onchange = () => { if ($('demo').checked) { link.useDemo(); $('midiStatus').textContent = '● DEMO TB-3 (SIMULATED)'; } else { link.disconnect(); $('midiStatus').textContent = '● NOT CONNECTED'; } };
+  $('demo').onchange = () => { if ($('demo').checked) { link.useDemo(); $('midiStatus').textContent = tr('demoOn', '● DEMO TB-3 (SIMULATED)'); } else { link.disconnect(); $('midiStatus').textContent = '● NOT CONNECTED'; } };
   $('hardwareMode').onchange = applyHwMode;
   $('channel').onchange = () => { link.channel = +$('channel').value; eng.channel(+$('channel').value); };
   $('capture').onclick = () => { if (!link.input) { log('Connect USB MIDI first.'); return; } link.startCapture(); $('capture').disabled = true; $('captureStop').disabled = false; };

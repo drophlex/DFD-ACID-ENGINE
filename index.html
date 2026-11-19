@@ -35,7 +35,7 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
 <span class="eyebrow" data-en="/ FREE · OPEN SOURCE · MADE TO PLAY LIVE" data-es="/ GRATIS · CÓDIGO ABIERTO · HECHO PARA TOCAR EN VIVO">/ FREE · OPEN SOURCE · MADE TO PLAY LIVE</span>
 <h1>ACID<span>ENGINE</span></h1>
 <p class="tag" data-en="An original acid synthesizer, step sequencer and pattern lab. Squelching lines in every style, from classic acid house to braindance, ready to drop into your track." data-es="Un sintetizador acid original, secuenciador por pasos y laboratorio de patrones. Líneas ácidas en todos los estilos, del acid house clásico al braindance, listas para tu track.">An original acid synthesizer, step sequencer and pattern lab. Squelching lines in every style, from classic acid house to braindance, ready to drop into your track.</p>
-<div class="ctas"><a class="btn main" href="web/" data-en="▶ PLAY NOW IN THE BROWSER" data-es="▶ TOCAR AHORA EN EL NAVEGADOR">▶ PLAY NOW IN THE BROWSER</a><a class="btn" href="DFD_ACID_ENGINE_OFFLINE.html" download data-en="⬇ OFFLINE VERSION (1 FILE)" data-es="⬇ VERSIÓN SIN INTERNET (1 ARCHIVO)">⬇ OFFLINE VERSION (1 FILE)</a><a class="btn" href="https://github.com/drophlex/DFD-ACID-ENGINE">GITHUB</a></div>
+<div class="ctas"><a class="btn main" href="web/" data-en="▶ PLAY NOW IN THE BROWSER" data-es="▶ TOCAR AHORA EN EL NAVEGADOR">▶ PLAY NOW IN THE BROWSER</a><a class="btn" href="DFD_ACID_ENGINE_OFFLINE.html" download data-en="⬇ OFFLINE VERSION (1 FILE)" data-es="⬇ VERSIÓN SIN INTERNET (1 ARCHIVO)">⬇ OFFLINE VERSION (1 FILE)</a><a class="btn" href="manual/DFD-ACID-ENGINE-Web-Manual-EN.pdf" data-en="📗 MANUAL (PDF)" data-es="📕 MANUAL (PDF)" id="manBtn">📗 MANUAL (PDF)</a><a class="btn" href="https://github.com/drophlex/DFD-ACID-ENGINE">GITHUB</a></div>
 <a href="web/"><img class="shot" src="docs/images/w_web_easy.jpg" alt="DFD ACID ENGINE in the browser"></a></div>
 
 <section><h2 data-en="One engine.<br><em>Three places.</em>" data-es="Un motor.<br><em>Tres lugares.</em>">One engine.<br><em>Three places.</em></h2>
@@ -63,7 +63,7 @@ footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;paddin
 <div>DARK FUNK DURCAL DESIGN · DESARROLLADO EN POLARIS SOUND LAB · MÉRIDA, YUCATÁN, MÉXICO</div>
 <div data-en="Independent software, not affiliated with Roland. TB-3 is a trademark of its owner." data-es="Software independiente, sin afiliación con Roland. TB-3 es marca de su dueño.">Independent software, not affiliated with Roland. TB-3 is a trademark of its owner.</div></footer></div>
 <script>
-function L(l){document.documentElement.lang=l;document.querySelectorAll('[data-en]').forEach(e=>e.innerHTML=e.dataset[l]||e.dataset.en);document.getElementById('en').classList.toggle('on',l==='en');document.getElementById('es').classList.toggle('on',l==='es');try{localStorage.setItem('dfd-acid-lang',l)}catch(e){}}
+function L(l){document.getElementById('manBtn').href='manual/DFD-ACID-ENGINE-Web-Manual-'+(l==='es'?'ES':'EN')+'.pdf';document.documentElement.lang=l;document.querySelectorAll('[data-en]').forEach(e=>e.innerHTML=e.dataset[l]||e.dataset.en);document.getElementById('en').classList.toggle('on',l==='en');document.getElementById('es').classList.toggle('on',l==='es');try{localStorage.setItem('dfd-acid-lang',l)}catch(e){}}
 document.getElementById('en').onclick=()=>L('en');document.getElementById('es').onclick=()=>L('es');
 try{if(localStorage.getItem('dfd-acid-lang')==='es')L('es')}catch(e){}
 </script></body></html>

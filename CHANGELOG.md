@@ -16,6 +16,7 @@
 - **Exports**: MIDI rendered from the engine's own events (what you hear is what you get), drag MIDI, WAV 48 kHz / 24-bit, stems.
 - **TB-3**: TWIN LINK modes OFF / VIRTUAL / HARDWARE / TWIN, sequencer events sent with audio-aligned timestamps, DEMO simulator,
   restore reads and downloads a safety backup of the current active patch before writing, panic.
+- **Manual** (PDF, 17 pages) in English, Spanish and both: `manual/`. Built by `tools/manual/`.
 - Offline single-file version that runs from disk. Donate button. Exact credit line. GPL-3.0.
 
 ## 0.x · prototype as delivered

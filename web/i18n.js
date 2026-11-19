@@ -26,6 +26,8 @@ export const T = {
     sysText: 'Lee los bloques documentados del patch activo. Toda escritura te pregunta antes; restaurar siempre hace un respaldo antes de escribir.',
     identify: 'IDENTIFICAR TB-3', readPatch: 'LEER PATCH ACTIVO', savePatch: '↓ GUARDAR RESPALDO .JSON', loadPatch: '↑ CARGAR RESPALDO', restore: 'RESTAURAR PATCH ACTIVO (CONFIRMAR)',
     applyType: 'APLICAR TIPO DE FX', applyParam: 'APLICAR PARÁMETRO', restoreNote: 'Restaurar solo cambia el patch activo (de edición), nunca un slot de usuario guardado. Nada se escribe sin tu clic.',
+    hwEyebrow: '/ 007 · HARDWARE CONECTADO', midiCh: 'CANAL MIDI', motion: 'CONTROL DE MOVIMIENTO', param: 'PARÁMETRO', value: 'VALOR', monitorL: 'MONITOR DEL LINK / TIEMPO REAL',
+    demoOn: '● TB-3 DEMO (SIMULADA)',
     notAff: 'SOFTWARE INDEPENDIENTE · SIN AFILIACIÓN CON ROLAND', donate: '♥ DONAR',
   },
 };
