@@ -163,3 +163,36 @@ export function wav24(L, R, sr) {
   for (let i = 0; i < n; i++) for (const ch of [L, R]) { const x = Math.max(-1, Math.min(1, ch[i])); const q = Math.round(x < 0 ? x * 8388608 : x * 8388607); v.setUint8(o++, q & 255); v.setUint8(o++, (q >> 8) & 255); v.setUint8(o++, (q >> 16) & 255); }
   return new Uint8Array(bytes);
 }
+
+// ------------------------------------------------------------------ inside the plug-in (JUCE web view): the native engine
+export const PLUGIN = typeof window !== 'undefined' && !!(window.__JUCE__ && window.__JUCE__.backend);
+let invokeId = 1;
+export function invoke(name, ...args) {
+  const B = window.__JUCE__.backend, id = invokeId++;
+  return new Promise(res => { const tok = B.addEventListener('__juce__complete', e => { if (e.promiseId === id) { B.removeEventListener(tok); res(e.result); } }); B.emitEvent('__juce__invoke', {name, params: args, resultId: id}); });
+}
+export const toB64 = bytes => { let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s); };
+export const fromB64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+// bytes (int32 length + 8-byte steps) -> step objects, the reverse of patternBytes
+export function bytesToSteps(b) {
+  const dv = new DataView(b.buffer, b.byteOffset, b.byteLength), len = Math.max(1, Math.min(4096, dv.getInt32(0, true), (b.length - 4) >> 3)), out = [];
+  for (let k = 0; k < len; k++) { const o = 4 + k * 8, f = b[o + 1]; out.push({note: b[o], active: !!(f & 1), accent: !!(f & 2), slide: !!(f & 4), tie: !!(f & 8), gate: b[o + 2], vel: b[o + 3], ratchet: b[o + 4], prob: b[o + 5], cond: b[o + 6], micro: (b[o + 7] << 24) >> 24}); }
+  return out;
+}
+export class NativeEngine {
+  constructor() {
+    this.ctx = {state: 'running'}; this.tele = [0, -1, 0, 0, 0, 0, -1, 0]; this.scope = new Float32Array(256); this.scopeW = 0; this.onEvents = null; this.onTele = null; this.onParams = null;
+    window.__JUCE__.backend.addEventListener('tele', e => { this.tele = e.tele; this.scope = Float32Array.from(e.scope); this.scopeW = e.w; if (e.params && this.onParams) this.onParams(e.params); this.onTele && this.onTele(this.tele); });
+  }
+  async start() {}
+  send(m) { invoke('msg', JSON.stringify(m)); }
+  param(id, v) { this.send({t: 'p', id, v}); }
+  pattern(ab, steps) { this.send({t: 'pat', ab, b64: toB64(patternBytes(steps))}); }
+  play() { this.send({t: 'play'}); }
+  stop() { this.send({t: 'stop'}); }
+  noteOn(n, v) { this.send({t: 'on', n, v}); }
+  noteOff(n) { this.send({t: 'off', n}); }
+  panic() { this.send({t: 'panic'}); }
+  channel(ch) { this.send({t: 'ch', ch: (ch - 1) & 15}); }
+  perfTime() { return performance.now(); }
+}

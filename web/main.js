@@ -1,12 +1,14 @@
 // DFD ACID ENGINE · the page. Sound comes from the shared C++ engine (WebAssembly in an AudioWorklet).
 import {PRESETS, MODES, STYLE_SOUND, SOUND_KEYS, DIRTY_SOUNDS, DIRTY_MODES, generate, mutate, parseNoteName, downloadBytes, dnaHash, sanitize, blankStep, condName, COND_LIST, clamp} from './pattern.js';
-import {LiveEngine, boot, ID, TABLE, render, eventsToMidi, wav24} from './engine.js';
+import {LiveEngine, NativeEngine, PLUGIN, invoke, toB64, fromB64, bytesToSteps, boot, ID, TABLE, render, eventsToMidi, wav24} from './engine.js';
 import {TB3Link} from './tb3-midi.js';
 import {applyLang, getLang, tr, PNAME_ES, PNAME_EN} from './i18n.js';
 
 const VERSION = '1.1.0';
 const $ = id => document.getElementById(id);
-const eng = new LiveEngine();
+const eng = PLUGIN ? new NativeEngine() : new LiveEngine();
+// files: a download on the web, a save window in the plug-in
+const save = (bytes, name, mime) => PLUGIN ? invoke('saveFile', name, toB64(bytes)).then(ok => ok && log('Saved ' + name)) : downloadBytes(bytes, name, mime);
 let params = [], pats = {A: [], B: []}, edit = 'A', sel = 0, patternName = PRESETS[0].name, running = false;
 const undo = [], redo = [];
 
@@ -103,7 +105,9 @@ function relabel() { document.querySelectorAll('[data-pn]').forEach(el => el.tex
 
 // ------------------------------------------------------------------ pattern + grid
 function pushUndo() { undo.push(JSON.stringify(pats)); if (undo.length > 80) undo.shift(); redo.length = 0; }
-function commit() { eng.pattern(0, pats.A); eng.pattern(1, pats.B); grid(); scheduleMidiCache(); }
+function commit() { eng.pattern(0, pats.A); eng.pattern(1, pats.B); grid(); scheduleMidiCache(); saveUi(); }
+let uiTimer = 0;
+function saveUi() { if (!PLUGIN) return; clearTimeout(uiTimer); uiTimer = setTimeout(() => invoke('setUi', JSON.stringify({v: 1, name: patternName, gen: genOpts(), edit, lock: lock()})), 300); }
 function setLength(n) {
   for (const k of ['A', 'B']) { const s = pats[k]; if (n > s.length) pats[k] = [...s, ...Array.from({length: n - s.length}, (_, i) => structuredClone(s[i % s.length]))]; else pats[k] = s.slice(0, n); }
   sel = Math.min(sel, n - 1);
@@ -277,16 +281,16 @@ async function cacheMidi() {
     return bytes;
   } catch (e) { log('MIDI render error: ' + e.message); }
 }
-async function exportMidi() { const b = await cacheMidi(); if (b) { downloadBytes(b, fileBase() + '.mid', 'audio/midi'); log('MIDI exported: notes, gates, ties as legato, CC 102 slide / CC 103 accent. What you hear is what you get.'); } }
+async function exportMidi() { const b = await cacheMidi(); if (b) { save(b, fileBase() + '.mid', 'audio/midi'); log('MIDI exported: notes, gates, ties as legato, CC 102 slide / CC 103 accent. What you hear is what you get.'); } }
 async function busy(btn, fn) { const t = btn.innerHTML; btn.disabled = true; btn.textContent = '…'; try { await fn(); } catch (e) { log('Render error: ' + e.message); } finally { btn.disabled = false; btn.innerHTML = t; } }
-async function exportWav() { const r = await renderNow({[ID.audio]: 1}); downloadBytes(wav24(r.L, r.R, r.sr), fileBase() + '.wav', 'audio/wav'); log('WAV 48 kHz / 24-bit rendered from the DFD engine (' + (r.L.length / r.sr).toFixed(1) + ' s). Virtual synth, not hardware audio.'); }
+async function exportWav() { const r = await renderNow({[ID.audio]: 1}); save(wav24(r.L, r.R, r.sr), fileBase() + '.wav', 'audio/wav'); log('WAV 48 kHz / 24-bit rendered from the DFD engine (' + (r.L.length / r.sr).toFixed(1) + ' s). Virtual synth, not hardware audio.'); }
 async function exportStems() {
   const dry = {[ID.audio]: 1}; for (const [, on] of FX) dry[ID[on]] = 0;
   const full = await renderNow({[ID.audio]: 1}), d = await renderNow(dry);
   const fxL = full.L.map((x, i) => x - d.L[i]), fxR = full.R.map((x, i) => x - d.R[i]);
-  downloadBytes(wav24(d.L, d.R, d.sr), fileBase() + '_STEM_SYNTH_DRY.wav', 'audio/wav');
-  setTimeout(() => downloadBytes(wav24(fxL, fxR, d.sr), fileBase() + '_STEM_FX.wav', 'audio/wav'), 400);
-  setTimeout(() => downloadBytes(wav24(full.L, full.R, d.sr), fileBase() + '_STEM_FULL.wav', 'audio/wav'), 800);
+  await save(wav24(d.L, d.R, d.sr), fileBase() + '_STEM_SYNTH_DRY.wav', 'audio/wav');
+  await new Promise(r => setTimeout(r, 400)); await save(wav24(fxL, fxR, d.sr), fileBase() + '_STEM_FX.wav', 'audio/wav');
+  await new Promise(r => setTimeout(r, 400)); await save(wav24(full.L, full.R, d.sr), fileBase() + '_STEM_FULL.wav', 'audio/wav');
   log('Stems: SYNTH DRY + FX (full minus dry) + FULL, sample-aligned, 48 kHz / 24-bit.');
 }
 
@@ -410,15 +414,33 @@ function setEdit(k) { edit = k; $('editA').classList.toggle('on', k === 'A'); $(
 async function init() {
   await boot();
   params = TABLE.map(p => p.def);
+  if (PLUGIN) { document.body.classList.add('plugin'); eng.onParams = p => { p.forEach((v, i) => { if (Math.abs(v - params[i]) > 1e-5) { params[i] = v; syncCtl(TABLE[i].id); } }); }; }
   $('ver').textContent = VERSION;
   for (const [k, m] of Object.entries(MODES)) { if (m.lab) continue; const o = document.createElement('option'); o.value = k; o.textContent = m.name; $('mode').append(o); }
   for (const p of PRESETS) { const o = document.createElement('option'); o.value = p.name; o.textContent = p.name; $('preset').append(o); }
   for (let c = 1; c <= 16; c++) { const o = document.createElement('option'); o.value = c; o.textContent = 'CH ' + c; $('channel').append(o); }
   buildSound(); buildFX(); buildLab(); buildKeys(); bindInspector(); bindXY(); fxTypes();
   pats.A = Array.from({length: 16}, () => blankStep()); pats.B = structuredClone(pats.A);
-  loadPreset(PRESETS[0]); undo.length = 0; loadLibrary(); readouts(); placeDot();
+  let restored = false;
+  if (PLUGIN) {
+    // this instance's own project (the DAW saved it with the set): parameters, both patterns, the page's settings
+    const pr = await invoke('getProject');
+    if (pr && pr.ui) { try {
+      const u = JSON.parse(pr.ui); params = pr.params.map(Number); pats.A = bytesToSteps(fromB64(pr.A)); pats.B = bytesToSteps(fromB64(pr.B));
+      while (pats.B.length < pats.A.length) pats.B.push(structuredClone(pats.A[pats.B.length])); pats.B = pats.B.slice(0, pats.A.length);
+      patternName = u.name || patternName; $('customName').value = patternName; edit = u.edit === 'B' ? 'B' : 'A';
+      if (u.gen) { for (const k of ['mode', 'root', 'scale']) if (u.gen[k] !== undefined) $(k).value = u.gen[k]; if (u.gen.seed) $('seed').value = u.gen.seed; }
+      if (u.lock) { $('lockNotes').checked = !!u.lock.notes; $('lockRhythm').checked = !!u.lock.rhythm; $('lockAcc').checked = !!u.lock.accents; $('lockSlide').checked = !!u.lock.slides; }
+      $('bpm').value = Math.round(params[ID.bpm]); $('swing').value = Math.round(params[ID.swing] * 100); $('morph').value = Math.round(params[ID.morph] * 100); $('quality').value = params[ID.quality];
+      $('length').value = [8, 16, 24, 32, 48, 64, 128, 256].includes(pats.A.length) ? pats.A.length : 256;
+      syncAll(); grid(); inspector(); scheduleMidiCache(); restored = true;
+    } catch (e) { log('Project restore failed: ' + e.message); } }
+  }
+  if (!restored) loadPreset(PRESETS[0]);
+  undo.length = 0; loadLibrary(); readouts(); placeDot(); setEdit(edit);
 
   $('dirtyGo').onclick = dirtyGo;
+  $('goLab').onclick = () => $('dirtyLab').scrollIntoView({behavior: 'smooth', block: 'start'});
   $('play').onclick = start; $('heroPlay').onclick = start; $('stop').onclick = stop;
   $('panic').onclick = () => { eng.panic(); link.allNotesOff?.(); held.clear(); log('PANIC: all notes off (engine + TB-3).'); };
   $('bpm').onchange = () => { const v = clamp(+$('bpm').value || 132, 30, 300); $('bpm').value = v; setP('bpm', v); };
@@ -444,10 +466,16 @@ async function init() {
   $('exportStems').onclick = () => busy($('exportStems'), exportStems);
   $('dragMidi').ondragstart = e => { if (!midiURL) { e.preventDefault(); return; } e.dataTransfer.setData('DownloadURL', 'audio/midi:' + fileBase() + '.mid:' + midiURL); e.dataTransfer.setData('text/uri-list', midiURL); };
   $('dragMidi').onclick = () => busy($('exportMidi'), exportMidi);
+  if (PLUGIN) { $('dragMidi').draggable = false; $('dragMidi').onclick = null; $('dragMidi').onpointerdown = async e => { e.preventDefault(); const b = await cacheMidi(); if (b) invoke('dragMidi', fileBase() + '.mid', toB64(b)); }; }
   $('savePattern').onclick = saveLocal;
   $('loadSaved').onclick = () => { const k = $('savedPatterns').value; if (!k) return; try { loadProject(readLib()[k]); log('Recalled ' + k); } catch (e) { log('Cannot load: ' + e.message); } };
-  $('exportProject').onclick = () => downloadBytes(new TextEncoder().encode(JSON.stringify(projectJSON(), null, 1)), fileBase() + '.dfdacid.json', 'application/json');
+  $('exportProject').onclick = () => save(new TextEncoder().encode(JSON.stringify(projectJSON(), null, 1)), fileBase() + '.dfdacid.json', 'application/json');
   $('importProject').onchange = async e => { const f = e.target.files?.[0]; if (!f) return; try { loadProject(JSON.parse(await f.text())); log('Imported ' + f.name); } catch (err) { log('Import rejected: ' + err.message); } e.target.value = ''; };
+  if (PLUGIN) {
+    const lab = $('importProject').closest('label'); lab.onclick = async e => { e.preventDefault(); const f = await invoke('openFile', '*.json'); if (!f) return; try { loadProject(JSON.parse(f.text)); log('Imported ' + f.name); } catch (err) { log('Import rejected: ' + err.message); } };
+    document.addEventListener('click', e => { const a = e.target.closest('a[href^="http"]'); if (a) { e.preventDefault(); invoke('openUrl', a.href); } });
+    $('manLink')?.setAttribute('href', 'https://drophlex.github.io/DFD-ACID-ENGINE/manual/DFD-ACID-ENGINE-Plugin-Manual-' + (getLang() === 'es' ? 'ES' : 'EN') + '.pdf');
+  }
   $('layerEasy').onclick = () => setLayer(false); $('layerExpert').onclick = () => setLayer(true);
   $('langEN').onclick = () => setLangUI('en'); $('langES').onclick = () => setLangUI('es');
 
@@ -460,7 +488,7 @@ async function init() {
   $('captureStop').onclick = () => { const got = link.stopCapture({bpm: params[ID.bpm], length: steps().length}); if (got.some(s => s.active)) { pushUndo(); pats[edit] = got.map(x => sanitize(x, true)); commit(); log('TB-3 notes captured into pattern ' + edit + '.'); } else log('Capture empty: check the TB-3 MIDI transmit channel.'); $('capture').disabled = false; $('captureStop').disabled = true; };
   $('identity').onclick = () => { try { link.identity(); log('Identity Request sent.'); } catch (e) { log(e.message); } };
   $('readPatch').onclick = () => { try { link.requestSnapshot(); log('Reading patch / distortion / EFX1 / EFX2 blocks…'); } catch (e) { log(e.message); } };
-  $('savePatch').onclick = () => { if (!Object.keys(link.rawBlocks).length) { log('Read the patch first: nothing to save yet.'); return; } downloadBytes(new TextEncoder().encode(link.snapshotJSON()), 'DFD_TB3_BACKUP_' + new Date().toISOString().replace(/[:.]/g, '-') + '.json', 'application/json'); };
+  $('savePatch').onclick = () => { if (!Object.keys(link.rawBlocks).length) { log('Read the patch first: nothing to save yet.'); return; } save(new TextEncoder().encode(link.snapshotJSON()), 'DFD_TB3_BACKUP_' + new Date().toISOString().replace(/[:.]/g, '-') + '.json', 'application/json'); };
   $('loadPatchFile').onchange = async e => { const f = e.target.files?.[0]; if (!f) return; try { const o = JSON.parse(await f.text()); if (o.type !== 'DFD-TB3-RAW' || !o.blocks) throw Error('not a DFD TB-3 backup'); snapshot = o.blocks; $('restorePatch').disabled = false; log('Backup loaded. Restore asks before writing.'); } catch (err) { log('Rejected: ' + err.message); } e.target.value = ''; };
   // restore: confirm -> read the current active patch -> download it as a safety backup -> only then write
   $('restorePatch').onclick = async () => {
@@ -470,7 +498,7 @@ async function init() {
       link.rawBlocks = {}; link.requestSnapshot(); log('Reading the current patch for the safety backup…');
       await new Promise(r => setTimeout(r, 1200));
       if (Object.keys(link.rawBlocks).length < 4) { log('Safety backup failed (the TB-3 did not answer all 4 blocks). Nothing was written.'); return; }
-      downloadBytes(new TextEncoder().encode(link.snapshotJSON()), 'DFD_TB3_SAFETY_BACKUP_' + new Date().toISOString().replace(/[:.]/g, '-') + '.json', 'application/json');
+      save(new TextEncoder().encode(link.snapshotJSON()), 'DFD_TB3_SAFETY_BACKUP_' + new Date().toISOString().replace(/[:.]/g, '-') + '.json', 'application/json');
       link.restoreSnapshot(snapshot); log('Safety backup saved. Restoring the active patch from your backup.');
     } catch (err) { log(err.message); }
   };

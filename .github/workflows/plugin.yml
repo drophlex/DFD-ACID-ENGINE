@@ -1,0 +1,99 @@
+name: plugin
+on:
+  push:
+    branches: [main]
+    paths: ['engine/**', 'web/**', 'plugin/**', 'build_offline.py', '.github/workflows/plugin.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  mac:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Engine tests
+        run: mkdir -p build && clang++ -std=c++17 -O2 tests/engine_test.cpp -o build/engine_test && ./build/engine_test
+      - name: The page inside the plug-in
+        run: python3 build_offline.py && mkdir -p plugin/ui && cp DFD_ACID_ENGINE_OFFLINE.html plugin/ui/index.html
+      - name: Configure (universal arm64 + x86_64)
+        run: cmake -S plugin -B pbuild -G Xcode -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
+      - name: Build VST3 + AU + app
+        run: cmake --build pbuild --config Release -j 4 -- -quiet
+      - name: Sign (ad hoc) and package
+        run: |
+          set -e
+          A=pbuild/DfdAcid_artefacts/Release; P="DFD ACID ENGINE (Mac)"
+          mkdir -p "$P"
+          cp -R "$A/VST3/DFD ACID ENGINE.vst3" "$A/AU/DFD ACID ENGINE.component" "$A/Standalone/DFD ACID ENGINE.app" "$P/"
+          for b in "$P"/*.vst3 "$P"/*.component "$P"/*.app; do codesign --force --deep -s - "$b"; done
+          cp "plugin/installer/Install DFD ACID ENGINE.command" plugin/installer/README.txt "$P/"
+          chmod +x "$P/Install DFD ACID ENGINE.command"
+          ditto -c -k --keepParent "$P" DFD-ACID-ENGINE-Mac.zip
+      - name: pluginval (VST3, strictness 8)
+        run: |
+          curl -sSL -o pv.zip https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip && unzip -q pv.zip
+          ./pluginval.app/Contents/MacOS/pluginval --strictness-level 8 --validate-in-process --skip-gui-tests --timeout-ms 300000 --validate "pbuild/DfdAcid_artefacts/Release/VST3/DFD ACID ENGINE.vst3"
+      - name: auval (AU)
+        run: |
+          mkdir -p ~/Library/Audio/Plug-Ins/Components
+          cp -R "pbuild/DfdAcid_artefacts/Release/AU/DFD ACID ENGINE.component" ~/Library/Audio/Plug-Ins/Components/
+          killall -9 AudioComponentRegistrar || true
+          auval -v aumu DfAe Plsl
+      - uses: actions/upload-artifact@v4
+        with: { name: DFD-ACID-ENGINE-Mac, path: DFD-ACID-ENGINE-Mac.zip }
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: WebView2 SDK (NuGet)
+        shell: pwsh
+        run: |
+          Register-PackageSource -provider NuGet -name nugetRepository -location https://www.nuget.org/api/v2 -Force
+          Install-Package Microsoft.Web.WebView2 -Scope CurrentUser -RequiredVersion 1.0.1901.177 -Source nugetRepository -Force
+      - name: The page inside the plug-in
+        shell: bash
+        run: python build_offline.py && mkdir -p plugin/ui && cp DFD_ACID_ENGINE_OFFLINE.html plugin/ui/index.html
+      - name: Configure
+        run: cmake -S plugin -B pbuild -A x64
+      - name: Build VST3 + app
+        run: cmake --build pbuild --config Release -j 4
+      - name: pluginval (VST3, strictness 8)
+        shell: bash
+        run: |
+          curl -sSL -o pv.zip https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip && 7z x -y pv.zip >/dev/null
+          ./pluginval.exe --strictness-level 8 --validate-in-process --skip-gui-tests --timeout-ms 300000 --validate "pbuild/DfdAcid_artefacts/Release/VST3/DFD ACID ENGINE.vst3"
+      - name: Package
+        shell: bash
+        run: |
+          A=pbuild/DfdAcid_artefacts/Release; P="DFD ACID ENGINE (Windows)"
+          mkdir -p "$P"
+          cp -R "$A/VST3/DFD ACID ENGINE.vst3" "$P/" && cp "$A/Standalone/DFD ACID ENGINE.exe" "$P/"
+          cp plugin/installer/Install.bat plugin/installer/README.txt "$P/"
+          7z a -tzip DFD-ACID-ENGINE-Windows.zip "$P" >/dev/null
+      - uses: actions/upload-artifact@v4
+        with: { name: DFD-ACID-ENGINE-Windows, path: DFD-ACID-ENGINE-Windows.zip }
+
+  release:
+    needs: [mac, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { path: dist, merge-multiple: true }
+      - name: Beta release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: plugin-v1.1.${{ github.run_number }}
+          name: DFD ACID ENGINE plug-in 1.1.${{ github.run_number }} BETA (VST3 · AU · app · Mac + Windows)
+          prerelease: true
+          files: |
+            dist/DFD-ACID-ENGINE-Mac.zip
+            dist/DFD-ACID-ENGINE-Windows.zip
+          body: |
+            BETA · built and validated automatically (pluginval strictness 8 on Mac and Windows, auval on Mac). Not yet tested by hand in a DAW.
+            Mac (Apple Silicon + Intel, macOS 11+): unzip, right-click "Install DFD ACID ENGINE.command" → Open.
+            Windows 10/11 (x64): unzip, double-click Install.bat → Yes.
+            Then rescan plug-ins: instruments → Polaris Sound Lab → DFD ACID ENGINE.
+            Manual, web version and donations: https://drophlex.github.io/DFD-ACID-ENGINE/
+            DARK FUNK DURCAL DESIGN · DESARROLLADO EN POLARIS SOUND LAB · MÉRIDA, YUCATÁN, MÉXICO
