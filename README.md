@@ -38,6 +38,10 @@ Everything comes **in English**, with a button to switch to **Spanish**: the web
 | ⇢ **Into your DAW** | `.mid` export (what you hear is what you get), **drag MIDI** into Ableton, WAV 48 kHz / 24-bit and stems. |
 | ⧉ **TB-3 TWIN LINK** | USB MIDI with the official MIDI implementation only: TWIN / HARDWARE / VIRTUAL modes, Shadow Capture, backup and restore of the active patch (always asks first). |
 
+## 🟢 VIBE FM
+
+DFD ACID ENGINE also runs as a **native Vibe for VIBE FM**: in your DAW (VIBE FM VST), in the browser and on the VIBE hardware. It has its own repository: **[drophlex/DFD-ACID-ENGINE-VIBE](https://github.com/drophlex/DFD-ACID-ENGINE-VIBE)**. Manual: [`manual/DFD-ACID-ENGINE-Vibe-Manual-EN.pdf`](manual/DFD-ACID-ENGINE-Vibe-Manual-EN.pdf) · [ES](manual/DFD-ACID-ENGINE-Vibe-Manual-ES.pdf).
+
 ## ⚡ Quick guide
 
 ### 🌐 In the browser (computer or phone)

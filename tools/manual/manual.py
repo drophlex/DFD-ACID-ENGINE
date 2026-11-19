@@ -336,10 +336,11 @@ async def pdf(jobs):
             print(name, 'overflow:', over)
         await b.close()
 
-from manual_more import build_plugin, build_fm1, setup
+from manual_more import build_plugin, build_fm1, build_vibe, setup
 setup(globals())
 EDITIONS = [('Web', build_web, 'WEB', '1.1', 'WEB MANUAL', 'MANUAL WEB'), ('Plugin', build_plugin, 'VST3 · AU · APP', '1.1 BETA', 'PLUG-IN MANUAL', 'MANUAL DEL PLUG-IN'),
-            ('FM1', build_fm1, 'M-VAVE FM-1', '1.8.2-da1', 'FM-1 MANUAL', 'MANUAL FM-1')]
+            ('FM1', build_fm1, 'M-VAVE FM-1', '1.8.2-da1', 'FM-1 MANUAL', 'MANUAL FM-1'),
+            ('Vibe', build_vibe, 'VIBE FM', '1.0', 'VIBE MANUAL', 'MANUAL VIBE')]
 jobs = []
 only = sys.argv[1:] or [e[0] for e in EDITIONS]
 for ed, fn, ename, ever, lab, lab_es in EDITIONS:
