@@ -67,7 +67,17 @@ USB MIDI is not USB audio: record the TB-3's sound through your audio interface 
 
 ### 🎹 Plugin (VST3 · AU · app) · BETA
 
-1. Download the newest **plug-in** release from **[Releases](https://github.com/drophlex/DFD-ACID-ENGINE/releases)**: `DFD-ACID-ENGINE-Mac.zip` (Apple Silicon + Intel, macOS 11+) or `DFD-ACID-ENGINE-Windows.zip` (Windows 10/11 x64).
+**Mac, in one line:** open **Terminal** and paste
+
+```
+curl -fsSL https://drophlex.github.io/DFD-ACID-ENGINE/install.sh | bash
+```
+
+It installs the VST3, the AU and the app into your user folders. Then rescan plug-ins in your DAW (Ableton: *Settings → Plug-ins → Rescan*).
+
+Or by hand:
+
+1. Download the newest **plug-in** release from **[Releases](https://github.com/drophlex/DFD-ACID-ENGINE/releases)**: `DFD-ACID-ENGINE-Mac.zip` (Apple Silicon + Intel, macOS 11+) or `DFD-ACID-ENGINE-Windows.zip` (Windows 10/11 x64). On macOS 15, if the installer is blocked: *System Settings → Privacy & Security → Open Anyway*.
 2. Mac: right-click **Install DFD ACID ENGINE.command** → **Open**. Windows: double-click **Install.bat** → **Yes**.
 3. In your DAW: instruments → *Polaris Sound Lab* → **DFD ACID ENGINE**. It follows the DAW's tempo and bar; MIDI in plays it, MIDI out sends the sequence (to a TB-3 too).
 
@@ -147,7 +157,7 @@ Todo viene **en inglés** con un botón para pasarlo a **español**: la web (**E
 
 **Manuales:** web [español](manual/DFD-ACID-ENGINE-Web-Manual-ES.pdf) / [inglés](manual/DFD-ACID-ENGINE-Web-Manual-EN.pdf) · plug-in [español](manual/DFD-ACID-ENGINE-Plugin-Manual-ES.pdf) / [inglés](manual/DFD-ACID-ENGINE-Plugin-Manual-EN.pdf) · FM-1 [español](manual/DFD-ACID-ENGINE-FM1-Manual-ES.pdf) / [inglés](manual/DFD-ACID-ENGINE-FM1-Manual-EN.pdf).
 
-**Plug-in (BETA):** descárgalo de [Releases](https://github.com/drophlex/DFD-ACID-ENGINE/releases); Mac: clic derecho en *Install DFD ACID ENGINE.command* → Abrir; Windows: *Install.bat* → Sí. Validado con pluginval y auval, aún sin pruebas a mano en todos los DAW.
+**Plug-in (BETA):** en Mac, lo más fácil: abre **Terminal** y pega `curl -fsSL https://drophlex.github.io/DFD-ACID-ENGINE/install.sh | bash`. O descárgalo de [Releases](https://github.com/drophlex/DFD-ACID-ENGINE/releases); Mac: clic derecho en *Install DFD ACID ENGINE.command* → Abrir (macOS 15: si lo bloquea, *Ajustes del Sistema → Privacidad y seguridad → Abrir de todos modos*); Windows: *Install.bat* → Sí. Validado con pluginval y auval, aún sin pruebas a mano en todos los DAW.
 
 **FM-1 (probado en un FM-1 real):** abre el [instalador](https://drophlex.github.io/DFD-ACID-ENGINE/fm1/install/) en Chrome o Edge → Instalar (respalda tu música primero; el instalador siempre puede regresarte al firmware oficial).
 

@@ -2,7 +2,7 @@ name: plugin
 on:
   push:
     branches: [main]
-    paths: ['engine/**', 'web/**', 'plugin/**', 'build_offline.py', 'manual/DFD-ACID-ENGINE-Plugin-*', '.github/workflows/plugin.yml']
+    paths: ['engine/**', 'web/**', 'plugin/**', 'build_offline.py', 'manual/DFD-ACID-ENGINE-Plugin-*', '.github/workflows/plugin.yml', 'install.sh']
   workflow_dispatch:
 permissions:
   contents: write
@@ -86,7 +86,8 @@ jobs:
         with:
           tag_name: plugin-v1.1.${{ github.run_number }}
           name: DFD ACID ENGINE plug-in 1.1.${{ github.run_number }} BETA (VST3 · AU · app · Mac + Windows)
-          prerelease: true
+          prerelease: false
+          make_latest: false     # the repository's "latest" stays the FM-1 release (The Firmware Hub reads it)
           files: |
             dist/DFD-ACID-ENGINE-Mac.zip
             dist/DFD-ACID-ENGINE-Windows.zip
@@ -95,7 +96,9 @@ jobs:
             manual/DFD-ACID-ENGINE-Plugin-Manual-EN-ES.pdf
           body: |
             BETA · built and validated automatically (pluginval strictness 8 on Mac and Windows, auval on Mac). Not yet tested by hand in a DAW.
-            Mac (Apple Silicon + Intel, macOS 11+): unzip, right-click "Install DFD ACID ENGINE.command" → Open.
+            Mac (Apple Silicon + Intel, macOS 11+), easiest: open Terminal and paste
+                curl -fsSL https://drophlex.github.io/DFD-ACID-ENGINE/install.sh | bash
+            or unzip DFD-ACID-ENGINE-Mac.zip and right-click "Install DFD ACID ENGINE.command" → Open (macOS 15: if it is blocked, System Settings → Privacy & Security → Open Anyway).
             Windows 10/11 (x64): unzip, double-click Install.bat → Yes.
             Then rescan plug-ins: instruments → Polaris Sound Lab → DFD ACID ENGINE.
             Manual, web version and donations: https://drophlex.github.io/DFD-ACID-ENGINE/
