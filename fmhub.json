@@ -1,0 +1,12 @@
+{
+  "what": "Acid and dirty electro for the FM-1. One squelching voice (acid saw or square, a wall of detuned saws, fidget) plays epic 16-step riffs from the web generator: 16 styles, 19 sounds, GENERATE, MUTATE, DNA lock and a DIRTY page with filth, pump and zap. Same patterns as the web and plug-in.",
+  "author": "Polaris Sound Lab",
+  "kinds": [
+    "synth"
+  ],
+  "play": "https://drophlex.github.io/DFD-ACID-ENGINE/web/",
+  "cheat": "https://github.com/drophlex/DFD-ACID-ENGINE/blob/main/manual/DFD-ACID-ENGINE-FM1-Manual-EN.pdf",
+  "image": "docs/images/fmhub-card.png",
+  "color": "#C1FF3A",
+  "sounds": "own: DFD ACID's synthesized acid / dirty voice and its 19 sounds, made by Polaris Sound Lab; CC0: the VSCO-2 and VCSL samples kept from Felucca"
+}
